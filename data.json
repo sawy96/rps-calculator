@@ -1,0 +1,119 @@
+{
+  "rosca_fees_matrix": {
+    "6M_NORMAL": [
+      { "slot": 1, "fee_percent": 0.0800 },
+      { "slot": 2, "fee_percent": 0.0700 },
+      { "slot": 3, "fee_percent": 0.0400 },
+      { "slot": 4, "fee_percent": 0.0000 },
+      { "slot": 5, "fee_percent": -0.0250 },
+      { "slot": 6, "fee_percent": -0.0400 }
+    ],
+    "10M_NORMAL": [
+      { "slot": 1, "fee_percent": 0.1500 },
+      { "slot": 2, "fee_percent": 0.1200 },
+      { "slot": 3, "fee_percent": 0.1000 },
+      { "slot": 4, "fee_percent": 0.0800 },
+      { "slot": 5, "fee_percent": 0.0600 },
+      { "slot": 6, "fee_percent": 0.0000 },
+      { "slot": 7, "fee_percent": 0.0000 },
+      { "slot": 8, "fee_percent": -0.0500 },
+      { "slot": 9, "fee_percent": -0.0700 },
+      { "slot": 10, "fee_percent": -0.1000 }
+    ],
+    "12M_NORMAL": [
+      { "slot": 1, "fee_percent": 0.1600 },
+      { "slot": 2, "fee_percent": 0.1500 },
+      { "slot": 3, "fee_percent": 0.1200 },
+      { "slot": 4, "fee_percent": 0.1000 },
+      { "slot": 5, "fee_percent": 0.0800 },
+      { "slot": 6, "fee_percent": 0.0700 },
+      { "slot": 7, "fee_percent": 0.0000 },
+      { "slot": 8, "fee_percent": 0.0000 },
+      { "slot": 9, "fee_percent": 0.0000 },
+      { "slot": 10, "fee_percent": -0.0584 },
+      { "slot": 11, "fee_percent": -0.0834 },
+      { "slot": 12, "fee_percent": -0.1040 }
+    ],
+    "6M_SMART_SAVING": [
+      { "slot": 6, "fee_percent": 0.05 } 
+    ],
+    "12M_SMART_SAVING": [
+      { "slot": 12, "fee_percent": 0.10 }
+    ],
+    "24M_SMART_SAVING": [
+      { "slot": 24, "fee_percent": 0.20 }
+    ]
+  },
+  "rps_datasets": {
+    "slot_factor_table": [
+      { "position": 1, "factor": 1 }, { "position": 2, "factor": 4 }, { "position": 3, "factor": 4 }, 
+      { "position": 4, "factor": 6 }, { "position": 5, "factor": 5 }, { "position": 6, "factor": 4 }, 
+      { "position": 7, "factor": 3 }, { "position": 8, "factor": 4 }, { "position": 9, "factor": 3 }, 
+      { "position": 10, "factor": 2 }, { "position": 11, "factor": 5 }, { "position": 12, "factor": 3 }, 
+      { "position": 24, "factor": 1 }
+    ],
+    "gmv_factor_table": [
+      { "payout": 15000, "factor": 0.50 }, 
+      { "payout": 30000, "factor": 1.00 }, 
+      { "payout": 39000, "factor": 1.25 }, 
+      { "payout": 54000, "factor": 1.50 }, 
+      { "payout": 63000, "factor": 1.75 }, 
+      { "payout": 75000, "factor": 2.00 }, 
+      { "payout": 100000, "factor": 3.00 }, 
+      { "payout": 120000, "factor": 4.00 }, 
+      { "payout": 500000, "factor": 5.00 }
+    ]
+  },
+  "slot_promocodes": [
+    { "duration": 6, "slot": 2, "code": "NRes2", "discount_percent": 0.50, "discount_cap": 4250.0 },
+    { "duration": 10, "slot": 2, "code": "NRes2", "discount_percent": 0.50, "discount_cap": 4250.0 },
+    { "duration": 12, "slot": 2, "code": "NRes2", "discount_percent": 0.50, "discount_cap": 4250.0 },
+    
+    { "duration": 6, "slot": 3, "code": "NRes3", "discount_percent": 0.50, "discount_cap": 3500.0 },
+    { "duration": 10, "slot": 3, "code": "NRes3", "discount_percent": 0.50, "discount_cap": 3500.0 },
+    { "duration": 12, "slot": 3, "code": "NRes3", "discount_percent": 0.50, "discount_cap": 3500.0 },
+    
+    { "duration": 10, "slot": 4, "code": "NRes4", "discount_percent": 0.50, "discount_cap": 3000.0 },
+    { "duration": 12, "slot": 4, "code": "NRes4", "discount_percent": 0.50, "discount_cap": 3000.0 },
+    
+    { "duration": 10, "slot": 5, "code": "NRes5X", "discount_percent": 0.50, "discount_cap": 2500.0 },
+    { "duration": 12, "slot": 5, "code": "NRes5X", "discount_percent": 0.50, "discount_cap": 2500.0 },
+    
+    { "duration": 12, "slot": 6, "code": "NRes6S", "discount_percent": 0.50, "discount_cap": 2000.0 },
+
+    { "duration": 6, "slot": 4, "code": "NResZero25", "discount_percent": 0.25, "discount_cap": 5000.0 },
+    { "duration": 10, "slot": 6, "code": "NResZero25", "discount_percent": 0.25, "discount_cap": 5000.0 },
+    { "duration": 10, "slot": 7, "code": "NResZero25", "discount_percent": 0.25, "discount_cap": 5000.0 },
+    { "duration": 12, "slot": 7, "code": "NResZero25", "discount_percent": 0.25, "discount_cap": 5000.0 },
+    { "duration": 12, "slot": 8, "code": "NResZero25", "discount_percent": 0.25, "discount_cap": 5000.0 },
+    { "duration": 12, "slot": 9, "code": "NResZero25", "discount_percent": 0.25, "discount_cap": 5000.0 }
+  ],
+  "recommendation_list": [
+    {
+      "code": "SLOT_EARLY_FEE",
+      "trigger_type": "Positive Fee",
+      "text": "The **Customer** is paying a premium for early access (high time-value of money). Emphasize the fixed, transparent nature of the fee (Gross Fee - Actual Discount) compared to market interest rates."
+    },
+    {
+      "code": "SLOT_ZERO_FEE",
+      "trigger_type": "Zero Fee",
+      "text": "The Zero-Fee slot is highly competitive. Highlight the added value of the 'NResZero25' promo, which provides an installment discount, making this option exceptionally attractive. Pitch this as the ideal balance between low risk and instant benefit."
+    },
+    {
+      "code": "SLOT_NEGATIVE_FEE",
+      "trigger_type": "Negative Fee",
+      "text": "This late slot provides the best overall financial return (a discount). Advise the team to frame this as an effective guaranteed interest rate that beats standard savings accounts, ideal for long-term saving **Customer**s."
+    },
+    {
+      "code": "SMART_SAVING_PITCH",
+      "trigger_type": "Smart Saving",
+      "text": "Smart Saving offers security and predictability. Use the high fixed fee (0.05-0.20) to justify the security and guaranteed end slot, suitable for **Customer**s focused on controlled, risk-averse financial planning."
+    },
+    {
+      "code": "RPS_OPTIMIZATION",
+      "trigger_type": "RPS > 4",
+      "text": "This combination of Payout and Slot generates a high RPS Factor. Ensure the **Customer** understands the added value and benefits associated with this factor level. It's a strong selling point for product confidence."
+    }
+  ],
+  "smart_saving_payouts": [3000, 6000, 12000, 30000, 60000, 100000, 250000, 500000, 1000000]
+}
