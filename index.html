@@ -107,9 +107,10 @@
 
                     <div id="payout-input-container" class="col-span-1 md:col-span-2 lg:col-span-1">
                          <label for="payout-amount-normal" class="block text-sm font-medium text-gray-700 mb-1">Requested Payout (EGP)</label>
-                        <input type="number" id="payout-amount-normal" name="payout-amount-normal" min="3000" max="1200000" required value="51000"
-                               class="input-style w-full border border-gray-300 p-2 rounded-lg focus:outline-none"
-                               placeholder="e.g. 51000">
+                        <input type="number" id="payout-amount-normal" name="payout-amount-normal" 
+       min="3000" max="1200000" step="3000" required value="51000"
+       class="input-style w-full border border-gray-300 p-2 rounded-lg focus:outline-none"
+       placeholder="e.g. 51000">
                         <select id="payout-amount-smart" name="payout-amount-smart" class="input-style w-full border border-gray-300 p-2 rounded-lg focus:outline-none bg-white hidden">
                             </select>
                          <p id="payout-helper-text" class="text-xs text-gray-400 mt-1">Multiples of 3,000 EGP (e.g., 3000, 6000, 9000...).</p>
