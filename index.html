@@ -1072,93 +1072,133 @@
          * 5. MAIN CALCULATION FUNCTION
          */
         
-        // --- NEW RPS RECOMMENDATION LOGIC ---
+        // --- UPDATED RPS RECOMMENDATION LOGIC (Handles Normal 3k multiples & Smart Saving fixed amounts) ---
         function getRpsRecommendation(currentPayout, duration, currentSlot, isPositiveFee, baseFeePercent, baseInstallment, grossFeesEGP, currentRpsTotal) {
             // Recommendation object structure
             const NO_UPGRADE = { upgradeFound: false, text: '', newRps: 0, newSchedule: null };
             
-            // ** No RPS recommendation for Smart Saving **
-            if (circleTypeSelect.value === 'Smart Saving') return NO_UPGRADE;
-            
+            // Validation check
             if (duration < 6 || currentSlot > duration) return NO_UPGRADE;
             
-            const MAX_INCREASE_PERCENT = 0.25;
-            const RPS_FACTOR_JUMP = 2;
             const currentGMVFactor = getPayoutFactor(currentPayout);
             const currentSlotFactor = getSlotFactor(currentSlot);
             const RPS_PROMO_MULTIPLIER = 0.90; // 10% discount
+            
+            // Define strictness for financial advice
+            // Normal: Strict 25% cap (don't suggest huge jumps)
+            // Smart Saving: Loose cap (200%) because fixed tiers have large gaps (e.g. 30k -> 60k)
+            const INCREASE_CAP = circleTypeSelect.value === 'Smart Saving' ? 2.0 : 0.25; 
 
             // ------------------------------------
             // A. PRIORITY 1: PAYOUT UPGRADE (GMV Factor)
             // ------------------------------------
-            const gmvTable = calculatorData.rps_datasets.gmv_factor_table;
             
-            // 1. Find the next highest distinct GMV factor
-            const distinctFactors = [...new Set(gmvTable.map(item => item.factor))].sort((a, b) => a - b);
-            const nextFactorIndex = distinctFactors.findIndex(f => f > currentGMVFactor);
-
-            if (nextFactorIndex !== -1) {
-                const nextFactor = distinctFactors[nextFactorIndex];
+            let targetPayout = null;
+            let targetFactor = 0;
+            
+            if (circleTypeSelect.value === 'Smart Saving') {
+                // --- SMART SAVING LOGIC ---
+                // Look for the next payout in the specific fixed list that yields a higher Factor
+                const allowedPayouts = calculatorData.smart_saving_payouts;
+                const currentIdx = allowedPayouts.indexOf(currentPayout);
                 
-                // 2. Find the minimum payout to achieve that next factor
-                const nextFactorMinPayout = gmvTable.find(item => item.factor === nextFactor)?.payout;
-                
-                if (nextFactorMinPayout) {
-                    const increasePercent = (nextFactorMinPayout - currentPayout) / currentPayout;
-
-                    // 3. Apply the 25% financial constraint
-                    if (increasePercent > 0 && increasePercent <= MAX_INCREASE_PERCENT) {
+                if (currentIdx !== -1) {
+                    for (let i = currentIdx + 1; i < allowedPayouts.length; i++) {
+                        const candidatePayout = allowedPayouts[i];
+                        const candidateFactor = getPayoutFactor(candidatePayout);
                         
-                        // --- Calculate recommended schedule details ---
-                        const newRpsOriginal = (nextFactor * currentSlotFactor * 50); // RPS before promo discount
-                        const newRpsTotal = newRpsOriginal * RPS_PROMO_MULTIPLIER; // Apply RPS Promo Discount to new RPS
-                        const newBaseInstallment = nextFactorMinPayout / duration;
-                        const newGrossFees = nextFactorMinPayout * baseFeePercent; // Uses original slot's fee %
-
-                        const newPromo = getSlotPromocode(duration, currentSlot); 
-                        let newNetFees = newGrossFees;
-                        let newIsZeroPromo = false;
-                        let newTotalSavings = 0;
-
-                        if (newPromo) {
-                            if (isPositiveFee) {
-                                const calculatedDiscount = newGrossFees * newPromo.discount_percent;
-                                const actualDiscount = Math.min(calculatedDiscount, newPromo.discount_cap);
-                                newNetFees = newGrossFees - actualDiscount;
-                                newTotalSavings = actualDiscount;
-                            } else if (baseFeePercent === 0) {
-                                 newNetFees = 0;
-                                 newIsZeroPromo = true;
-                                 // Calculate savings on installment for zero-fee promo
-                                 const calculatedInstallmentDiscount = newBaseInstallment * newPromo.discount_percent;
-                                 const actualInstallmentDiscount = Math.min(calculatedInstallmentDiscount, newPromo.discount_cap);
-                                 newTotalSavings = actualInstallmentDiscount; // Capped discount is the total saving
-                            }
-                        } else if (baseFeePercent < 0) { // Calculate savings if slot has negative fee
-                            newTotalSavings = Math.abs(newGrossFees);
+                        if (candidateFactor > currentGMVFactor) {
+                            targetPayout = candidatePayout;
+                            targetFactor = candidateFactor;
+                            break; // Found the next tier up
                         }
-                        
-                        const recommendedSchedule = buildSchedule(newBaseInstallment, newNetFees, duration, currentSlot, nextFactorMinPayout, newIsZeroPromo, 'Normal'); // Assume Normal for rec calc
-                        const originalScheduleForRec = buildSchedule(newBaseInstallment, newGrossFees, duration, currentSlot, nextFactorMinPayout, false, 'Normal');
-
-
-                        return {
-                            upgradeFound: true,
-                            type: 'payout',
-                            newRps: newRpsTotal,
-                            newSchedule: recommendedSchedule,
-                            newScheduleOriginal: originalScheduleForRec,
-                            newSlot: currentSlot, 
-                            newPayout: nextFactorMinPayout,
-                            newBaseInstallment: newBaseInstallment,
-                            newGrossFees: newGrossFees,
-                            newPromoCode: newPromo ? newPromo.code : 'N/A',
-                            newTotalSavings: newTotalSavings,
-                            originalSlot: currentSlot, 
-                            originalPayout: currentPayout, 
-                            text: `STRATEGIC UPSELL: Recommend increasing the Payout Amount to ${formatter.format(nextFactorMinPayout)} to achieve the next GMV Factor of ${nextFactor.toFixed(2)}. This is a financially realistic ${formatPercent(increasePercent)} increase for the Customer.`,
-                        };
                     }
+                }
+            } else {
+                // --- NORMAL LOGIC ---
+                // Look at GMV table, find next factor, calculate min payout, round to 3000
+                const gmvTable = calculatorData.rps_datasets.gmv_factor_table;
+                const distinctFactors = [...new Set(gmvTable.map(item => item.factor))].sort((a, b) => a - b);
+                const nextFactorIndex = distinctFactors.findIndex(f => f > currentGMVFactor);
+
+                if (nextFactorIndex !== -1) {
+                    targetFactor = distinctFactors[nextFactorIndex];
+                    let rawMinPayout = gmvTable.find(item => item.factor === targetFactor)?.payout;
+                    
+                    if (rawMinPayout) {
+                        // Round up to nearest 3000 if not divisible
+                        if (rawMinPayout % 3000 !== 0) {
+                            targetPayout = Math.ceil(rawMinPayout / 3000) * 3000;
+                        } else {
+                            targetPayout = rawMinPayout;
+                        }
+                    }
+                }
+            }
+
+            // Process the upgrade if a target was found
+            if (targetPayout) {
+                const increasePercent = (targetPayout - currentPayout) / currentPayout;
+
+                // Apply financial constraint check
+                if (increasePercent > 0 && increasePercent <= INCREASE_CAP) {
+                    
+                    // --- Calculate recommended schedule details ---
+                    const newRpsOriginal = (targetFactor * currentSlotFactor * 50); // RPS before promo discount
+                    // Smart Saving usually doesn't have promo discounts on RPS, but keeping formula consistent
+                    const newRpsTotal = circleTypeSelect.value === 'Normal' ? newRpsOriginal * RPS_PROMO_MULTIPLIER : newRpsOriginal; 
+                    
+                    const newBaseInstallment = targetPayout / duration;
+                    
+                    // Recalculate fees (Smart Saving fee % might change based on payout? usually only duration)
+                    // Note: Code assumes fee % depends on duration/slot, not payout.
+                    const newGrossFees = targetPayout * baseFeePercent; 
+
+                    const newPromo = circleTypeSelect.value === 'Normal' ? getSlotPromocode(duration, currentSlot) : null; 
+                    let newNetFees = newGrossFees;
+                    let newIsZeroPromo = false;
+                    let newTotalSavings = 0;
+
+                    // Promo Logic (Only for Normal)
+                    if (newPromo && circleTypeSelect.value === 'Normal') {
+                        if (isPositiveFee) {
+                            const calculatedDiscount = newGrossFees * newPromo.discount_percent;
+                            const actualDiscount = Math.min(calculatedDiscount, newPromo.discount_cap);
+                            newNetFees = newGrossFees - actualDiscount;
+                            newTotalSavings = actualDiscount;
+                        } else if (baseFeePercent === 0) {
+                                newNetFees = 0;
+                                newIsZeroPromo = true;
+                                const calculatedInstallmentDiscount = newBaseInstallment * newPromo.discount_percent;
+                                const actualInstallmentDiscount = Math.min(calculatedInstallmentDiscount, newPromo.discount_cap);
+                                newTotalSavings = actualInstallmentDiscount; 
+                        }
+                    } else if (circleTypeSelect.value === 'Smart Saving') {
+                        // Smart Saving "Savings" = The Cashback Amount (Gross Fees)
+                        newTotalSavings = Math.abs(newGrossFees);
+                    } else if (baseFeePercent < 0) { 
+                        newTotalSavings = Math.abs(newGrossFees);
+                    }
+                    
+                    const recommendedSchedule = buildSchedule(newBaseInstallment, newNetFees, duration, currentSlot, targetPayout, newIsZeroPromo, circleTypeSelect.value); 
+                    const originalScheduleForRec = buildSchedule(newBaseInstallment, newGrossFees, duration, currentSlot, targetPayout, false, circleTypeSelect.value);
+
+                    return {
+                        upgradeFound: true,
+                        type: 'payout',
+                        newRps: newRpsTotal,
+                        newSchedule: recommendedSchedule,
+                        newScheduleOriginal: originalScheduleForRec,
+                        newSlot: currentSlot, 
+                        newPayout: targetPayout,
+                        newBaseInstallment: newBaseInstallment,
+                        newGrossFees: newGrossFees,
+                        newPromoCode: newPromo ? newPromo.code : 'N/A',
+                        newTotalSavings: newTotalSavings,
+                        originalSlot: currentSlot, 
+                        originalPayout: currentPayout, 
+                        text: `STRATEGIC UPSELL: Recommend increasing the Payout Amount to ${formatter.format(targetPayout)} to achieve the next GMV Factor of ${targetFactor.toFixed(2)}. This is a ${formatPercent(increasePercent)} increase.`,
+                    };
                 }
             }
             
@@ -1166,43 +1206,39 @@
             // B. PRIORITY 2: SLOT UPGRADE (Position Factor)
             // ------------------------------------
             
-            // ** CONSTRAINT 1: If slot is 1, skip slot recommendations **
+            // Slot upgrades are NOT available for Smart Saving (fixed slots)
+            if (circleTypeSelect.value === 'Smart Saving') return NO_UPGRADE;
+
+            // ** CONSTRAINT: If slot is 1, skip slot recommendations **
             if (currentSlot === 1) return NO_UPGRADE;
             
-            // Determine search range based on fee type
-            let checkRange = isPositiveFee ? 1 : 2; // ±1 for Positive Fee, ±2 for Zero/Negative Fee
-
+            let checkRange = isPositiveFee ? 1 : 2; 
             let bestSlotRecommendation = NO_UPGRADE;
+            const RPS_FACTOR_JUMP = 2;
             let maxFactorJump = 0;
 
             for (let offset = -checkRange; offset <= checkRange; offset++) {
-                if (offset === 0) continue; // Skip current slot
+                if (offset === 0) continue; 
                 
                 const targetSlot = currentSlot + offset;
                 
-                // Check bounds and ensure we stay in Normal circle
                 if (targetSlot >= 1 && targetSlot <= duration) {
                     const targetFeePercent = getFeePercent('Normal', duration, targetSlot);
-                    // Skip if fee data not found for target slot (shouldn't happen with bounds check)
                     if (targetFeePercent === null) continue; 
                     
                     const targetSlotFactor = getSlotFactor(targetSlot);
 
-                    // Constraint 2: For POSITIVE FEE SLOTS, do not recommend moving to a discount/negative slot.
                     if (isPositiveFee && targetFeePercent < 0.00001) {
-                         // This slot is Zero or Negative fee. Skip based on strategic constraint.
                          continue; 
                     }
 
                     const factorJump = targetSlotFactor - currentSlotFactor;
 
-                    // Constraint 3: Must be a significant RPS factor jump (>= 2) AND improve current best
                     if (factorJump >= RPS_FACTOR_JUMP && factorJump > maxFactorJump) {
                         
-                        // --- Calculate recommended schedule details ---
-                        const newRpsOriginal = (targetSlotFactor * currentGMVFactor * 50); // RPS before promo discount
-                        const newRpsTotal = newRpsOriginal * RPS_PROMO_MULTIPLIER; // Apply RPS Promo Discount to new RPS
-                        const newGrossFees = currentPayout * targetFeePercent; // New gross fees using target slot's fee %
+                        const newRpsOriginal = (targetSlotFactor * currentGMVFactor * 50); 
+                        const newRpsTotal = newRpsOriginal * RPS_PROMO_MULTIPLIER; 
+                        const newGrossFees = currentPayout * targetFeePercent; 
 
                         const newPromo = getSlotPromocode(duration, targetSlot);
                         let newNetFees = newGrossFees;
@@ -1218,21 +1254,19 @@
                             } else if (targetFeePercent === 0) {
                                  newNetFees = 0;
                                  newIsZeroPromo = true;
-                                 // Calculate savings on installment for zero-fee promo
-                                 const calculatedInstallmentDiscount = baseInstallment * newPromo.discount_percent; // Use original base installment
+                                 const calculatedInstallmentDiscount = baseInstallment * newPromo.discount_percent; 
                                  const actualInstallmentDiscount = Math.min(calculatedInstallmentDiscount, newPromo.discount_cap);
-                                 newTotalSavings = actualInstallmentDiscount; // Capped discount is the total saving
+                                 newTotalSavings = actualInstallmentDiscount; 
                             }
                         } else if (targetFeePercent < 0) {
-                             // Recommended slot is negative fee (discount slot) - Calculate savings from the discount
                              const totalDiscount = Math.abs(newGrossFees);
                              newTotalSavings = totalDiscount;
                         }
                         
                         const recommendedSchedule = buildSchedule(baseInstallment, newNetFees, duration, targetSlot, currentPayout, newIsZeroPromo, 'Normal');
-                        const originalScheduleForRec = buildSchedule(baseInstallment, newGrossFees, duration, targetSlot, currentPayout, false, 'Normal'); // No promo, but target slot's fees
+                        const originalScheduleForRec = buildSchedule(baseInstallment, newGrossFees, duration, targetSlot, currentPayout, false, 'Normal'); 
 
-                        maxFactorJump = factorJump; // Update max jump found
+                        maxFactorJump = factorJump; 
                         bestSlotRecommendation = {
                             upgradeFound: true,
                             type: 'slot',
@@ -1246,8 +1280,8 @@
                             newPromoCode: newPromo ? newPromo.code : 'N/A',
                             newTotalSavings: newTotalSavings,
                             newDuration: duration,
-                            originalSlot: currentSlot, // Added for summary text
-                            originalPayout: currentPayout, // Added for summary text
+                            originalSlot: currentSlot, 
+                            originalPayout: currentPayout, 
                             text: `EASY UPGRADE: Recommend moving the Slot from ${currentSlot} to ${targetSlot}. This increases the Position Factor by ${factorJump} (from ${currentSlotFactor} to ${targetSlotFactor}), achieving a new RPS Score of ${formatter.format(newRpsTotal)}.`,
                         };
                     }
