@@ -1003,6 +1003,7 @@
         
         // Updated function signature to include totalSavings
         // Updated function signature to include totalSavings
+        // Updated function signature to include totalSavings
         function renderPayoutResults(installmentAmount, grossFees, promoCode, promoDetails, payoutFactor, slotFactor, rpsTotal, feeType, rpsRecommendation, totalSavings, rpsPromoTotal) { 
             
             // 1. Basic Metrics
@@ -1046,9 +1047,26 @@
             }
             
             document.getElementById('recommendation-text').textContent = recText;
-            document.getElementById('rec-summary-text').textContent = rpsRecommendation.text || ''; // Update summary text
-            document.getElementById('recommended-rps-total').textContent = rpsRecommendation.upgradeFound ? formatter.format(rpsRecommendation.newRps / 0.90) : 'N/A'; 
-            document.getElementById('rec-rps-promo-total').textContent = rpsRecommendation.upgradeFound ? formatter.format(rpsRecommendation.newRps) : 'N/A'; 
+            document.getElementById('rec-summary-text').textContent = rpsRecommendation.text || ''; 
+
+            // --- FIX STARTS HERE: Handle Smart Saving RPS Display ---
+            let displayRecOriginalRps;
+            
+            if (rpsRecommendation.upgradeFound) {
+                if (circleTypeSelect.value === 'Smart Saving') {
+                    // Smart Saving: No discount, so Original = New RPS
+                    displayRecOriginalRps = rpsRecommendation.newRps;
+                } else {
+                    // Normal: Reverse the 10% discount (divide by 0.90) to show Original
+                    displayRecOriginalRps = rpsRecommendation.newRps / 0.90;
+                }
+                document.getElementById('recommended-rps-total').textContent = formatter.format(displayRecOriginalRps);
+                document.getElementById('rec-rps-promo-total').textContent = formatter.format(rpsRecommendation.newRps);
+            } else {
+                document.getElementById('recommended-rps-total').textContent = 'N/A';
+                document.getElementById('rec-rps-promo-total').textContent = 'N/A';
+            }
+            // --- FIX ENDS HERE ---
         }
 
         /**
