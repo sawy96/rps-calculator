@@ -811,23 +811,31 @@
                      option.textContent = formatter.format(amount);
                      payoutAmountSelect.appendChild(option);
                  });
-                 // Set a default value if needed, e.g., the first one
+                 // Set a default value if needed
                  if (calculatorData.smart_saving_payouts.length > 0) {
                       payoutAmountSelect.value = calculatorData.smart_saving_payouts[0];
                  }
              } else {
-                 // Reset Normal input if needed, or keep last value
-                 payoutAmountInput.value = 51000; // Reset to default
+                 // Reset Normal input if needed
+                 payoutAmountInput.value = 51000; 
              }
 
-             // Hide/Show RPS and Recommendation sections
+             // --- VISIBILITY FIX STARTS HERE ---
+             
+             // 1. Hide RPS Section (Section 2) for Smart Saving? 
+             // Usually RPS (Gamification Score) is only for Normal slots. 
+             // We keep it hidden for Smart Saving to avoid confusion with "0" scores.
              rpsSection.classList.toggle('hidden', isSmartSaving);
-             recommendationCard.classList.toggle('hidden', isSmartSaving);
+             
+             // 2. Recommendation Card (Section 3) 
+             // We MUST show this for Smart Saving now that we have logic for it.
+             recommendationCard.classList.remove('hidden'); 
+             
+             // --- VISIBILITY FIX ENDS HERE ---
              
              // Update Duration options which will trigger slot update and calculation
              updateDurationOptions(); 
         }
-
 
         function updateDurationOptions() {
             const circleType = circleTypeSelect.value;
