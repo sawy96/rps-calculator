@@ -1002,11 +1002,15 @@
         }
         
         // Updated function signature to include totalSavings
+        // Updated function signature to include totalSavings
         function renderPayoutResults(installmentAmount, grossFees, promoCode, promoDetails, payoutFactor, slotFactor, rpsTotal, feeType, rpsRecommendation, totalSavings, rpsPromoTotal) { 
+            
+            // 1. Basic Metrics
             document.getElementById('result-base-installment').textContent = formatter.format(installmentAmount);
             document.getElementById('result-gross-fees').textContent = formatter.format(Math.abs(grossFees)); 
             document.getElementById('result-total-savings').textContent = formatter.format(totalSavings); 
 
+            // 2. Color Coding for Gross Fees
             const grossFeesEl = document.getElementById('result-gross-fees');
             grossFeesEl.classList.remove('text-red-600', 'text-green-600', 'text-yellow-800');
             if (circleTypeSelect.value === 'Smart Saving') {
@@ -1019,57 +1023,32 @@
                 grossFeesEl.classList.add('text-yellow-800');
             }
 
+            // 3. Promocode Display
             document.getElementById('result-promo-code').textContent = promoCode || 'N/A';
             document.getElementById('result-promo-details').textContent = promoDetails || (feeType === 'Negative Fee' ? 'No promo available for discount slots.' : 'No promo applies to this slot.');
             
-            // --- FIX: SHOW RPS FOR ALL TYPES ---
+            // 4. RPS Display (Show for ALL types)
             document.getElementById('rps-payout-factor').textContent = payoutFactor.toFixed(2);
             document.getElementById('rps-slot-factor').textContent = slotFactor;
             document.getElementById('rps-total').textContent = formatter.format(rpsTotal);
             document.getElementById('result-rps-promo-total').textContent = formatter.format(rpsPromoTotal);
             
-            // --- Recommendation Section Rendering ---
+            // 5. Recommendation Section Rendering
             let recText;
             if (rpsRecommendation.upgradeFound) {
                 recText = "An RPS upgrade opportunity has been identified for this selection:";
+                // Ensure the RPS wrapper is visible if an upgrade is found
+                recommendedRpsWrapper.classList.remove('hidden');
             } else {
                 const strategicRec = calculatorData.recommendation_list.find(r => r.trigger_type === feeType);
                 recText = strategicRec ? `${strategicRec.text} \n\n(Note: No immediate RPS score upgrade was found for this combination.)` : 'No recommendation available.';
                 recommendedRpsWrapper.classList.add('hidden');
             }
+            
             document.getElementById('recommendation-text').textContent = recText;
+            document.getElementById('rec-summary-text').textContent = rpsRecommendation.text || ''; // Update summary text
             document.getElementById('recommended-rps-total').textContent = rpsRecommendation.upgradeFound ? formatter.format(rpsRecommendation.newRps / 0.90) : 'N/A'; 
             document.getElementById('rec-rps-promo-total').textContent = rpsRecommendation.upgradeFound ? formatter.format(rpsRecommendation.newRps) : 'N/A'; 
-        }
-
-            // Promocode Display
-            document.getElementById('result-promo-code').textContent = promoCode || 'N/A';
-            document.getElementById('result-promo-details').textContent = promoDetails || (feeType === 'Negative Fee' ? 'No promo available for discount slots.' : 'No promo applies to this slot.');
-            
-            // RPS Display (Only show if Normal)
-            if (circleTypeSelect.value === 'Normal') {
-                document.getElementById('rps-payout-factor').textContent = payoutFactor.toFixed(2);
-                document.getElementById('rps-slot-factor').textContent = slotFactor;
-                document.getElementById('rps-total').textContent = formatter.format(rpsTotal);
-                document.getElementById('result-rps-promo-total').textContent = formatter.format(rpsPromoTotal); // NEW RPS PROMO DISPLAY
-            }
-            
-            // --- Recommendation Section Rendering ---
-            
-            // 1. Recommendation Text
-            let recText;
-            if (rpsRecommendation.upgradeFound) {
-                // This text is now just the fallback header
-                recText = "An RPS upgrade opportunity has been identified for this selection:";
-            } else {
-                 // 2. Default strategic advice based on fee type if no RPS upgrade is found
-                const strategicRec = calculatorData.recommendation_list.find(r => r.trigger_type === feeType);
-                recText = strategicRec ? `${strategicRec.text} \n\n(Note: No immediate RPS score upgrade was found for this combination.)` : 'No recommendation available.';
-                recommendedRpsWrapper.classList.add('hidden');
-            }
-            document.getElementById('recommendation-text').textContent = recText;
-            document.getElementById('recommended-rps-total').textContent = rpsRecommendation.upgradeFound ? formatter.format(rpsRecommendation.newRps / 0.90) : 'N/A'; // Show original RPS for rec
-            document.getElementById('rec-rps-promo-total').textContent = rpsRecommendation.upgradeFound ? formatter.format(rpsRecommendation.newRps) : 'N/A'; // Show new promo RPS
         }
 
         /**
