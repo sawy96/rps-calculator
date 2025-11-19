@@ -792,7 +792,6 @@
          * 2. DYNAMIC UI LOGIC 
          */
          
-        // ** NEW Function to handle Circle Type changes **
         function handleCircleTypeChange() {
              const circleType = circleTypeSelect.value;
              const isSmartSaving = circleType === 'Smart Saving';
@@ -811,32 +810,20 @@
                      option.textContent = formatter.format(amount);
                      payoutAmountSelect.appendChild(option);
                  });
-                 // Set a default value if needed
                  if (calculatorData.smart_saving_payouts.length > 0) {
                       payoutAmountSelect.value = calculatorData.smart_saving_payouts[0];
                  }
              } else {
-                 // Reset Normal input if needed
                  payoutAmountInput.value = 51000; 
              }
 
-             // --- VISIBILITY FIX STARTS HERE ---
-             
-             // 1. Hide RPS Section (Section 2) for Smart Saving? 
-             // Usually RPS (Gamification Score) is only for Normal slots. 
-             // We keep it hidden for Smart Saving to avoid confusion with "0" scores.
-             rpsSection.classList.toggle('hidden', isSmartSaving);
-             
-             // 2. Recommendation Card (Section 3) 
-             // We MUST show this for Smart Saving now that we have logic for it.
+             // --- FIX: ALWAYS SHOW RPS SECTION & RECOMMENDATION CARD ---
+             rpsSection.classList.remove('hidden'); 
              recommendationCard.classList.remove('hidden'); 
              
-             // --- VISIBILITY FIX ENDS HERE ---
-             
-             // Update Duration options which will trigger slot update and calculation
              updateDurationOptions(); 
         }
-
+        
         function updateDurationOptions() {
             const circleType = circleTypeSelect.value;
             let durations = [];
@@ -1015,16 +1002,15 @@
         }
         
         // Updated function signature to include totalSavings
-        function renderPayoutResults(installmentAmount, grossFees, promoCode, promoDetails, payoutFactor, slotFactor, rpsTotal, feeType, rpsRecommendation, totalSavings, rpsPromoTotal) { // Added rpsPromoTotal
+        function renderPayoutResults(installmentAmount, grossFees, promoCode, promoDetails, payoutFactor, slotFactor, rpsTotal, feeType, rpsRecommendation, totalSavings, rpsPromoTotal) { 
             document.getElementById('result-base-installment').textContent = formatter.format(installmentAmount);
-            document.getElementById('result-gross-fees').textContent = formatter.format(Math.abs(grossFees)); // Show absolute value
-            document.getElementById('result-total-savings').textContent = formatter.format(totalSavings); // NEW SAVINGS METRIC
+            document.getElementById('result-gross-fees').textContent = formatter.format(Math.abs(grossFees)); 
+            document.getElementById('result-total-savings').textContent = formatter.format(totalSavings); 
 
-            // Apply color coding based on sign of fees and type
             const grossFeesEl = document.getElementById('result-gross-fees');
             grossFeesEl.classList.remove('text-red-600', 'text-green-600', 'text-yellow-800');
             if (circleTypeSelect.value === 'Smart Saving') {
-                 grossFeesEl.classList.add('text-green-600'); // Cashback is always green
+                 grossFeesEl.classList.add('text-green-600'); 
             } else if (grossFees > 0) {
                 grossFeesEl.classList.add('text-red-600');
             } else if (grossFees < 0) {
@@ -1032,6 +1018,29 @@
             } else {
                 grossFeesEl.classList.add('text-yellow-800');
             }
+
+            document.getElementById('result-promo-code').textContent = promoCode || 'N/A';
+            document.getElementById('result-promo-details').textContent = promoDetails || (feeType === 'Negative Fee' ? 'No promo available for discount slots.' : 'No promo applies to this slot.');
+            
+            // --- FIX: SHOW RPS FOR ALL TYPES ---
+            document.getElementById('rps-payout-factor').textContent = payoutFactor.toFixed(2);
+            document.getElementById('rps-slot-factor').textContent = slotFactor;
+            document.getElementById('rps-total').textContent = formatter.format(rpsTotal);
+            document.getElementById('result-rps-promo-total').textContent = formatter.format(rpsPromoTotal);
+            
+            // --- Recommendation Section Rendering ---
+            let recText;
+            if (rpsRecommendation.upgradeFound) {
+                recText = "An RPS upgrade opportunity has been identified for this selection:";
+            } else {
+                const strategicRec = calculatorData.recommendation_list.find(r => r.trigger_type === feeType);
+                recText = strategicRec ? `${strategicRec.text} \n\n(Note: No immediate RPS score upgrade was found for this combination.)` : 'No recommendation available.';
+                recommendedRpsWrapper.classList.add('hidden');
+            }
+            document.getElementById('recommendation-text').textContent = recText;
+            document.getElementById('recommended-rps-total').textContent = rpsRecommendation.upgradeFound ? formatter.format(rpsRecommendation.newRps / 0.90) : 'N/A'; 
+            document.getElementById('rec-rps-promo-total').textContent = rpsRecommendation.upgradeFound ? formatter.format(rpsRecommendation.newRps) : 'N/A'; 
+        }
 
             // Promocode Display
             document.getElementById('result-promo-code').textContent = promoCode || 'N/A';
@@ -1301,13 +1310,10 @@
         // --- END NEW RPS RECOMMENDATION LOGIC ---
 
         function calculatePayout(event) {
-            // ** FIX: Wrap core logic in try...catch to diagnose errors **
             try {
-                if (event && event.preventDefault) {
-                    event.preventDefault();
-                }
+                if (event && event.preventDefault) event.preventDefault();
                 hideError();
-                recommendedRpsWrapper.classList.add('hidden'); // Hide recommendation details initially
+                recommendedRpsWrapper.classList.add('hidden'); 
 
                 // --- 1. Get and Validate Inputs ---
                 const CircleType = circleTypeSelect.value;
@@ -1317,17 +1323,11 @@
                 let PayoutAmount;
                 if (CircleType === 'Smart Saving') {
                     PayoutAmount = parseFloat(payoutAmountSelect.value);
-                    if (!isValidSmartSavingPayoutAmount(PayoutAmount)) {
-                         return showError("Please select a valid Payout Amount for Smart Saving.");
-                    }
+                    if (!isValidSmartSavingPayoutAmount(PayoutAmount)) return showError("Please select a valid Payout Amount for Smart Saving.");
                 } else {
                     PayoutAmount = parseFloat(payoutAmountInput.value);
-                    // ** NEW VALIDATION: Check if PayoutAmount is in the GMV table **
                     if (!isValidNormalPayoutAmount(PayoutAmount)) {
-                         // Check standard bounds first (optional, but good practice)
-                        if (PayoutAmount < 3000 || PayoutAmount > 1200000) {
-                            return showError("Please enter a valid Requested Payout Amount between 3,000 and 1,200,000 EGP.");
-                        }
+                        if (PayoutAmount < 3000 || PayoutAmount > 1200000) return showError("Please enter a valid Requested Payout Amount between 3,000 and 1,200,000 EGP.");
                         return showError("Invalid Requested Payout Amount. Please choose a multiple of 3,000 EGP.");
                     }
                 }
@@ -1341,83 +1341,68 @@
                 const baseInstallment = PayoutAmount / Duration;
                 const baseFeePercent = getFeePercent(CircleType, Duration, SlotPosition);
                 
-                if (baseFeePercent === null) {
-                    return showError(`Error: Fee data not found for ${CircleType} ${Duration}M Slot ${SlotPosition}. Please check the embedded data.`);
-                }
+                if (baseFeePercent === null) return showError(`Error: Fee data not found for ${CircleType} ${Duration}M Slot ${SlotPosition}.`);
 
-                const grossFeesEGP = PayoutAmount * baseFeePercent; // For Smart Saving this is Cashback amount
+                const grossFeesEGP = PayoutAmount * baseFeePercent; 
                 const isPositiveFee = baseFeePercent > 0;
                 const isZeroFee = baseFeePercent === 0;
                 const isNegativeFee = baseFeePercent < 0;
 
-                // --- 3. Determine Original Installment Schedule (CURRENT selection, no promo) ---
-                const originalSchedule = buildSchedule(baseInstallment, grossFeesEGP, Duration, SlotPosition, PayoutAmount, false, CircleType); // Pass CircleType
+                // --- 3. Determine Original Schedule ---
+                const originalSchedule = buildSchedule(baseInstallment, grossFeesEGP, Duration, SlotPosition, PayoutAmount, false, CircleType); 
                 
-                // --- 4. Determine Promo Schedule (if applicable to CURRENT selection) ---
+                // --- 4. Determine Promo Schedule ---
                 let promoSchedule = null;
                 let promoCode = null;
                 let promoDetails = null;
-                let totalSavings = 0; // Initialize total savings for current selection
-                const RPS_PROMO_MULTIPLIER = 0.90; // 10% discount
-                let rpsPromoTotal = 0;
-                let netFeesEGP = grossFeesEGP; // Initialize net fees with gross for context
+                let totalSavings = 0; 
+                let netFeesEGP = grossFeesEGP; 
 
                 const slotPromo = getSlotPromocode(Duration, SlotPosition);
                 
-                if (CircleType === 'Normal') {
-                    const rpsTotal = (getPayoutFactor(PayoutAmount) * getSlotFactor(SlotPosition) * 50);
-                    rpsPromoTotal = rpsTotal * RPS_PROMO_MULTIPLIER; // Calculate 90% of base RPS
-                }
-
-                if (slotPromo && CircleType === 'Normal') { // Promos only apply to Normal
+                // Promo Logic (Only for Normal)
+                if (slotPromo && CircleType === 'Normal') { 
                     promoCode = slotPromo.code;
                     promoDetails = `Discount: ${formatPercent(slotPromo.discount_percent)} / Cap: ${formatter.format(slotPromo.discount_cap)}`;
                     
                     if (isPositiveFee) {
-                        // POSITIVE FEE LOGIC (Fees Discounted)
                         const calculatedDiscount = grossFeesEGP * slotPromo.discount_percent;
                         const actualDiscount = Math.min(calculatedDiscount, slotPromo.discount_cap);
                         netFeesEGP = grossFeesEGP - actualDiscount;
-                        totalSavings = actualDiscount; // Savings is the discount applied to fees
-                        
+                        totalSavings = actualDiscount; 
                         promoSchedule = buildSchedule(baseInstallment, netFeesEGP, Duration, SlotPosition, PayoutAmount, false, CircleType);
-
                     } else if (isZeroFee) {
-                        // ZERO FEE LOGIC (Installment Discounted - Single Month Cap)
                         const calculatedInstallmentDiscount = baseInstallment * slotPromo.discount_percent;
                         const actualInstallmentDiscount = Math.min(calculatedInstallmentDiscount, slotPromo.discount_cap);
-                        const discountedInstallment = baseInstallment - actualInstallmentDiscount; // This is only for month 1
-                        
-                        totalSavings = actualInstallmentDiscount; // Savings is the single month discount
-                        // Pass the original baseInstallment, the promo flag will handle the logic
+                        totalSavings = actualInstallmentDiscount; 
                         promoSchedule = buildSchedule(baseInstallment, 0, Duration, SlotPosition, PayoutAmount, true, CircleType); 
-                        
                     }
                 } else if (isNegativeFee && CircleType === 'Normal') {
-                    // Negative Fee Slots (Discount already built into the grossFeesEGP)
                     totalSavings = Math.abs(grossFeesEGP); 
                 } else if (CircleType === 'Smart Saving') {
-                     // Smart Saving: Savings is the cashback amount
-                     totalSavings = Math.abs(grossFeesEGP); // grossFees is cashback for Smart Saving
+                     totalSavings = Math.abs(grossFeesEGP); 
                      netFeesEGP = grossFeesEGP;
                 }
 
-                // --- 5. RPS Calculation Logic ---
+                // --- 5. RPS Calculation Logic (ENABLED FOR ALL TYPES) ---
                 const payoutFactor = getPayoutFactor(PayoutAmount);
                 const slotFactor = getSlotFactor(SlotPosition);
                 const rpsTotal = payoutFactor * slotFactor * 50;
+                
+                // RPS Promo is 90% for Normal, but 100% (no change) for Smart Saving
+                const rpsPromoMultiplier = CircleType === 'Normal' ? 0.90 : 1.0;
+                const rpsPromoTotal = rpsTotal * rpsPromoMultiplier;
 
                 // --- 6. RPS Recommendation ---
-                const rpsRecommendation = getRpsRecommendation(PayoutAmount, Duration, SlotPosition, isPositiveFee, baseFeePercent, baseInstallment, grossFeesEGP, rpsTotal); // Pass rpsTotal
+                const rpsRecommendation = getRpsRecommendation(PayoutAmount, Duration, SlotPosition, isPositiveFee, baseFeePercent, baseInstallment, grossFeesEGP, rpsTotal); 
 
-                // --- Store context for modal access ---
                 latestCalculationContext = {
                     payout: PayoutAmount,
                     duration: Duration,
                     slot: SlotPosition,
                     baseInstallment: baseInstallment,
                     grossFees: grossFeesEGP,
-                    netFees: netFeesEGP, // Store net fees (after promo if applied)
+                    netFees: netFeesEGP, 
                     totalSavings: totalSavings,
                     originalSchedule: originalSchedule,
                     promoSchedule: promoSchedule,
@@ -1427,21 +1412,20 @@
                     payoutFactor: payoutFactor,
                     slotFactor: slotFactor,
                     rpsTotal: rpsTotal,
-                    rpsPromoTotal: rpsPromoTotal, // Store promo RPS total
+                    rpsPromoTotal: rpsPromoTotal, 
                     rec: rpsRecommendation.upgradeFound ? rpsRecommendation : null,
-                    circleType: CircleType, // Store Circle Type
-                    promoCode: promoCode // Store the promo code
+                    circleType: CircleType, 
+                    promoCode: promoCode 
                 };
-
 
                 // --- 7. Render Results ---
                 let feeType;
                 if (CircleType === 'Smart Saving') {
                     feeType = 'Smart Saving';
-                    promoScheduleWrapper.classList.add('hidden'); // No promo comparison for Smart Saving
-                    originalScheduleWrapper.classList.remove('lg:w-1/2'); // Make original table full width
+                    promoScheduleWrapper.classList.add('hidden'); 
+                    originalScheduleWrapper.classList.remove('lg:w-1/2'); 
                 } else {
-                    originalScheduleWrapper.classList.add('lg:w-1/2'); // Ensure original table is half width if Normal
+                    originalScheduleWrapper.classList.add('lg:w-1/2'); 
                     if (isPositiveFee) {
                         feeType = 'Positive Fee';
                         promoScheduleWrapper.classList.toggle('hidden', !promoSchedule);
@@ -1454,7 +1438,6 @@
                     }
                 }
                 
-                // Pass totalSavings and rpsPromoTotal to renderPayoutResults
                 renderPayoutResults(baseInstallment, grossFeesEGP, promoCode, promoDetails, payoutFactor, slotFactor, rpsTotal, feeType, rpsRecommendation, totalSavings, rpsPromoTotal);
                 renderInstallmentTable('installment-table-original-body', originalSchedule, SlotPosition);
                 
@@ -1462,20 +1445,17 @@
                     renderInstallmentTable('installment-table-promo-body', promoSchedule, SlotPosition);
                 }
 
-                // Render Recommendation Details (Schedules and New RPS)
+                // Render Recommendation Details
                 if (rpsRecommendation.upgradeFound) {
-                    // Check if schedule is defined for comparison (it should be)
                     if (rpsRecommendation.newScheduleOriginal && rpsRecommendation.newSchedule) {
-                        
-                        // Determine if recommended slot has negative fees
                         const recommendedSlotFeePercent = getFeePercent('Normal', Duration, rpsRecommendation.newSlot);
                         const recommendedSlotIsNegativeFee = recommendedSlotFeePercent < 0;
 
                         renderRecommendationDetails(
                             rpsRecommendation.newScheduleOriginal, 
                             rpsRecommendation.newSchedule, 
-                            SlotPosition, // Original Slot Position
-                            rpsRecommendation.newSlot, // Recommended Slot Position (used for payout highlight)
+                            SlotPosition, 
+                            rpsRecommendation.newSlot, 
                             {
                                 newBaseInstallment: rpsRecommendation.newBaseInstallment,
                                 newGrossFees: rpsRecommendation.newGrossFees,
@@ -1487,10 +1467,9 @@
                                 newSlot: rpsRecommendation.newSlot,
                                 newPayout: rpsRecommendation.newPayout,
                             },
-                            recommendedSlotIsNegativeFee // Pass the flag
+                            recommendedSlotIsNegativeFee 
                         );
                     } else {
-                         // Fallback for missing schedule data in recommendation
                         recommendedRpsWrapper.classList.add('hidden');
                         document.getElementById('recommendation-text').textContent += ` (Note: Could not calculate comparison schedule for this recommendation.)`;
                     }
@@ -1501,9 +1480,8 @@
                 resultsSection.classList.remove('hidden');
 
             } catch (e) {
-                // ** Display the error to the user for diagnosis **
                 console.error("Calculation execution failed:", e);
-                showError(`A critical calculation error occurred. Details: ${e.message}. The data or logic may be inconsistent for this selection.`);
+                showError(`A critical calculation error occurred. Details: ${e.message}.`);
             }
         }
 
