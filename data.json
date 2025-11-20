@@ -47,7 +47,7 @@
   "rps_datasets": {
     "slot_factor_table": [
       { "position": 1, "factor": 1 }, { "position": 2, "factor": 4 }, { "position": 3, "factor": 4 }, 
-      { "position": 4, "factor": 6 }, { "position": 5, "factor": 5 }, { "position": 6, "factor": 4 }, 
+      { "position": 4, "factor": 5 }, { "position": 5, "factor": 5 }, { "position": 6, "factor": 4 }, 
       { "position": 7, "factor": 3 }, { "position": 8, "factor": 4 }, { "position": 9, "factor": 3 }, 
       { "position": 10, "factor": 2 }, { "position": 11, "factor": 5 }, { "position": 12, "factor": 3 }, 
       { "position": 24, "factor": 1 }
