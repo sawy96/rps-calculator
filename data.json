@@ -65,9 +65,9 @@
     ]
   },
   "slot_promocodes": [
-    { "duration": 6, "slot": 2, "code": "NRes2", "discount_percent": 0.50, "discount_cap": 4250.0 },
-    { "duration": 10, "slot": 2, "code": "NRes2", "discount_percent": 0.50, "discount_cap": 4250.0 },
-    { "duration": 12, "slot": 2, "code": "NRes2", "discount_percent": 0.50, "discount_cap": 4250.0 },
+    { "duration": 6, "slot": 2, "code": "NRes2X", "discount_percent": 0.25, "discount_cap": 3000.0 },
+    { "duration": 10, "slot": 2, "code": "NRes2X", "discount_percent": 0.25, "discount_cap": 3000.0 },
+    { "duration": 12, "slot": 2, "code": "NRes2X", "discount_percent": 0.25, "discount_cap": 3000.0 },
     
     { "duration": 6, "slot": 3, "code": "NRes3", "discount_percent": 0.50, "discount_cap": 3500.0 },
     { "duration": 10, "slot": 3, "code": "NRes3", "discount_percent": 0.50, "discount_cap": 3500.0 },
