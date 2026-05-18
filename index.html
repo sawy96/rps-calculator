@@ -1268,12 +1268,18 @@
                 let promoDetails = null;
                 let totalSavings = 0; 
                 let netFeesEGP = grossFeesEGP; 
-
-                const slotPromo = getSlotPromocode(Duration, SlotPosition);
                 
-                if (slotPromo && CircleType === 'Normal') { 
-                    promoCode = slotPromo.code;
-                    promoDetails = `Discount: ${formatPercent(slotPromo.total_discount_percent || slotPromo.discount_percent)} / Cap: ${formatter.format(slotPromo.discount_cap)}`;
+                const slotPromo = getSlotPromocode(Duration, SlotPosition);
+
+if (slotPromo && CircleType === 'Normal') { 
+    promoCode = slotPromo.code;
+    
+    // Dynamically adjust the text based on the active mode
+    if (ZERO_FEE_PROMO_MODE === 'distributed' && slotPromo.discount_schedule) {
+        promoDetails = `Discount: ${formatPercent(slotPromo.total_discount_percent)} / Cap: ${formatter.format(2000)}/mth`;
+    } else {
+        promoDetails = `Discount: ${formatPercent(slotPromo.total_discount_percent || slotPromo.discount_percent)} / Cap: ${formatter.format(slotPromo.discount_cap)}`;
+    }
                     
                     if (isPositiveFee) {
                         const calculatedDiscount = grossFeesEGP * slotPromo.discount_percent;
