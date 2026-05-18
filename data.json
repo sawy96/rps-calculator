@@ -81,12 +81,12 @@
     
     { "duration": 12, "slot": 6, "code": "NRes66", "discount_percent": 0.25, "discount_cap": 2000.0 },
 
-    { "duration": 6, "slot": 4, "code": "NRes153", "total_discount_percent": 0.15, "discount_schedule": [{ "installment": 1, "discount_percent": 0.05 }, { "installment": 2, "discount_percent": 0.05 }, { "installment": 3, "discount_percent": 0.05 }], "discount_cap": 5000.0 },
-    { "duration": 10, "slot": 6, "code": "NRes153", "total_discount_percent": 0.15, "discount_schedule": [{ "installment": 1, "discount_percent": 0.05 }, { "installment": 2, "discount_percent": 0.05 }, { "installment": 3, "discount_percent": 0.05 }], "discount_cap": 5000.0 },
-    { "duration": 10, "slot": 7, "code": "NRes153", "total_discount_percent": 0.15, "discount_schedule": [{ "installment": 1, "discount_percent": 0.05 }, { "installment": 2, "discount_percent": 0.05 }, { "installment": 3, "discount_percent": 0.05 }], "discount_cap": 5000.0 },
-    { "duration": 12, "slot": 7, "code": "NRes153", "total_discount_percent": 0.15, "discount_schedule": [{ "installment": 1, "discount_percent": 0.05 }, { "installment": 2, "discount_percent": 0.05 }, { "installment": 3, "discount_percent": 0.05 }], "discount_cap": 5000.0 },
-    { "duration": 12, "slot": 8, "code": "NRes153", "total_discount_percent": 0.15, "discount_schedule": [{ "installment": 1, "discount_percent": 0.05 }, { "installment": 2, "discount_percent": 0.05 }, { "installment": 3, "discount_percent": 0.05 }], "discount_cap": 5000.0 },
-    { "duration": 12, "slot": 9, "code": "NRes153", "total_discount_percent": 0.15, "discount_schedule": [{ "installment": 1, "discount_percent": 0.05 }, { "installment": 2, "discount_percent": 0.05 }, { "installment": 3, "discount_percent": 0.05 }], "discount_cap": 5000.0 }
+    { "duration": 6, "slot": 4, "code": "NRes156", "total_discount_percent": 0.15, "discount_schedule": [{ "installment": 1, "discount_percent": 0.05 }, { "installment": 2, "discount_percent": 0.05 }, { "installment": 3, "discount_percent": 0.05 }], "discount_cap": 5000.0 },
+    { "duration": 10, "slot": 6, "code": "NRes156", "total_discount_percent": 0.15, "discount_schedule": [{ "installment": 1, "discount_percent": 0.05 }, { "installment": 2, "discount_percent": 0.05 }, { "installment": 3, "discount_percent": 0.05 }], "discount_cap": 5000.0 },
+    { "duration": 10, "slot": 7, "code": "NRes156", "total_discount_percent": 0.15, "discount_schedule": [{ "installment": 1, "discount_percent": 0.05 }, { "installment": 2, "discount_percent": 0.05 }, { "installment": 3, "discount_percent": 0.05 }], "discount_cap": 5000.0 },
+    { "duration": 12, "slot": 7, "code": "NRes156", "total_discount_percent": 0.15, "discount_schedule": [{ "installment": 1, "discount_percent": 0.05 }, { "installment": 2, "discount_percent": 0.05 }, { "installment": 3, "discount_percent": 0.05 }], "discount_cap": 5000.0 },
+    { "duration": 12, "slot": 8, "code": "NRes156", "total_discount_percent": 0.15, "discount_schedule": [{ "installment": 1, "discount_percent": 0.05 }, { "installment": 2, "discount_percent": 0.05 }, { "installment": 3, "discount_percent": 0.05 }], "discount_cap": 5000.0 },
+    { "duration": 12, "slot": 9, "code": "NRes156", "total_discount_percent": 0.15, "discount_schedule": [{ "installment": 1, "discount_percent": 0.05 }, { "installment": 2, "discount_percent": 0.05 }, { "installment": 3, "discount_percent": 0.05 }], "discount_cap": 5000.0 }
   ],
   "recommendation_list": [
     {
