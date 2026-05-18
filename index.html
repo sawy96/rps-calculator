@@ -6,14 +6,12 @@
     <title>Rescue Team Payout Calculator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Custom styles for a professional internal tool look */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f7f9fb; }
         .card { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
         .input-style:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5); }
         .result-box { border-left: 6px solid #3b82f6; }
         .rec-box { background-color: #f0fdf4; border: 1px solid #dcfce7; }
-        /* Style for mobile responsiveness */
         @media (max-width: 640px) {
             .input-grid { grid-template-columns: 1fr; }
         }
@@ -38,7 +36,6 @@
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 16px;
         }
-        /* 6. Tooltip Button Style */
         .calc-button {
             display: inline-flex;
             align-items: center;
@@ -46,19 +43,17 @@
             width: 20px;
             height: 20px;
             margin-left: 6px;
-            border-radius: 9999px; /* full circle */
-            background-color: #d1d5db; /* gray-300 */
-            color: #1f2937; /* gray-800 */
+            border-radius: 9999px; 
+            background-color: #d1d5db; 
+            color: #1f2937; 
             font-size: 12px;
             font-weight: 700;
             cursor: pointer;
             transition: background-color 0.15s;
         }
         .calc-button:hover {
-            background-color: #9ca3af; /* gray-400 */
+            background-color: #9ca3af; 
         }
-
-        /* Modal Styles */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -155,13 +150,13 @@
                         </div>
                         <div class="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
                             <p class="text-sm font-medium text-yellow-700 flex items-center">
-                                Original Fees/Cashback/Slot Discount (EGP) <span class="calc-button" onclick="showCalculationSteps('grossFees', document.getElementById('result-gross-fees').textContent)">?</span>
+                                Original Fees/Cashback/Slot Discount <span class="calc-button" onclick="showCalculationSteps('grossFees', document.getElementById('result-gross-fees').textContent)">?</span>
                             </p>
                             <p id="result-gross-fees" class="text-2xl font-bold text-yellow-800 mt-1">0.00</p>
                         </div>
                         <div class="p-4 bg-green-50 rounded-lg border border-green-200">
                             <p class="text-sm font-medium text-green-700 flex items-center">
-                                Total Savings Cashback/Slot Discount/Promo Discount (EGP)
+                                Total Savings Cashback/Slot Discount/Promo
                                 <span class="calc-button" onclick="showCalculationSteps('totalSavings', document.getElementById('result-total-savings').textContent)">?</span>
                             </p>
                             <p id="result-total-savings" class="text-2xl font-bold text-green-800 mt-1">0.00</p>
@@ -269,7 +264,7 @@
                             </div>
                             <div class="p-2 bg-green-50 rounded-lg">
                                 <p class="text-xs font-medium text-green-700 flex items-center">
-                                    New Fees/Slot Discount/Cashback (EGP)
+                                    New Fees/Slot Discount
                                      <span class="calc-button" onclick="showCalculationSteps('recGrossFees', document.getElementById('rec-gross-fees').textContent)">?</span>
                                 </p>
                                 <p id="rec-gross-fees" class="font-bold text-green-900 mt-1">0.00</p>
@@ -280,7 +275,7 @@
                             </div>
                             <div class="p-2 bg-green-50 rounded-lg">
                                 <p class="text-xs font-medium text-green-700 flex items-center">
-                                    Potential Total Savings Cashback/<br>Slot Discount/Promo (EGP)
+                                    Potential Total Savings
                                     <span class="calc-button" onclick="showCalculationSteps('recTotalSavings', document.getElementById('rec-total-savings').textContent)">?</span>
                                 </p>
                                 <p id="rec-total-savings" class="font-bold text-green-900 mt-1">0.00</p>
@@ -288,14 +283,14 @@
 
                             <div class="p-2 bg-green-200 rounded-lg col-span-full md:col-span-1">
                                 <p class="text-xs font-medium text-green-900 flex items-center">
-                                    Potential New RPS Score (Original)
+                                    Potential New RPS Score
                                     <span class="calc-button" onclick="showCalculationSteps('recRpsTotal', document.getElementById('recommended-rps-total').textContent)">?</span>
                                 </p>
                                 <p id="recommended-rps-total" class="text-xl font-bold text-green-900 mt-1">0.00</p>
                             </div>
-                                                        <div class="p-2 bg-red-200 rounded-lg">
+                                                                                <div class="p-2 bg-red-200 rounded-lg">
                                 <p class="text-xs font-medium text-red-900 flex items-center">
-                                    Potential New RPS with promo (90%)
+                                    Potential New RPS (90%)
                                     <span class="calc-button" onclick="showCalculationSteps('recRpsTotalPromo', document.getElementById('rec-rps-promo-total').textContent)">?</span>
                                 </p>
                                 <p id="rec-rps-promo-total" class="text-xl font-bold text-red-900 mt-1">0.00</p>
@@ -357,22 +352,27 @@
         </div>
     </div>
 
-
     <script>
-        // Global variables for data and input references
-        
-        // ** MODIFICATION 1: Declare calculatorData but don't define it. It will be fetched. **
+        // ==========================================
+        // DEVELOPER CONFIGURATION
+        // ==========================================
+        // Set this to 'distributed' to split the 15% discount across the first 3 months (capped at 2000 per month).
+        // Set this to 'upfront' to apply the 15% discount entirely to the first month (capped at 5000 total).
+        const ZERO_FEE_PROMO_MODE = 'distributed'; 
+        // ==========================================
+
         let calculatorData;
+        let latestCalculationContext = {};
         
         const circleTypeSelect = document.getElementById('circle-type');
         const durationSelect = document.getElementById('duration');
         const slotSelect = document.getElementById('slot-position');
-        const payoutAmountInput = document.getElementById('payout-amount-normal'); // Updated ID
-        const payoutAmountSelect = document.getElementById('payout-amount-smart'); // Updated ID
-        const payoutHelperText = document.getElementById('payout-helper-text'); // Updated ID
+        const payoutAmountInput = document.getElementById('payout-amount-normal'); 
+        const payoutAmountSelect = document.getElementById('payout-amount-smart'); 
+        const payoutHelperText = document.getElementById('payout-helper-text'); 
 
         const form = document.getElementById('calculator-form');
-        const errorMessageDiv = document.getElementById('error-message'); // Corrected ID
+        const errorMessageDiv = document.getElementById('error-message'); 
         const resultsSection = document.getElementById('results-section');
         const promoScheduleWrapper = document.getElementById('promo-schedule-wrapper');
         const recommendedRpsWrapper = document.getElementById('recommended-rps-wrapper');
@@ -381,8 +381,6 @@
         const recommendationCard = document.getElementById('recommendation-card');
         const originalScheduleWrapper = document.getElementById('original-schedule-wrapper');
 
-        
-        // Helper for currency formatting
         const formatter = new Intl.NumberFormat('en-US', {
             style: 'currency',
             currency: 'EGP',
@@ -390,42 +388,35 @@
             maximumFractionDigits: 2,
         });
 
-        // Helper for percentage formatting
         function formatPercent(value) {
              if (value === null || value === undefined || isNaN(value)) return 'N/A';
             return (value * 100).toFixed(2) + '%';
         }
 
-        // --- NEW: Calculation Steps Modal Logic ---
         function showCalculationSteps(metricKey, monthOrValue, tbodyId = null) {
-            // Context retrieval logic for modal must be inside the function body
             let currentContext = latestCalculationContext;
             let scheduleData = [];
             
-            // Determine if we are in the recommendation section context
             const isRecContext = metricKey.startsWith('rec') || (tbodyId && tbodyId.includes('rec-'));
-            let isPromoTable = false; // Flag to identify promo table context
+            let isPromoTable = false; 
 
             if (isRecContext && currentContext.rec) {
-                currentContext = currentContext.rec; // Switch context to recommendation data
-                isPromoTable = tbodyId && tbodyId.includes('new-body'); // Check if it's the promo table in REC section
+                currentContext = currentContext.rec; 
+                isPromoTable = tbodyId && tbodyId.includes('new-body'); 
                 scheduleData = isPromoTable ? currentContext.newSchedule : currentContext.newScheduleOriginal;
             } else if (tbodyId) {
-                // Main calculation section context
-                isPromoTable = tbodyId && (tbodyId.includes('promo-body')); // Check only main promo table ID
+                isPromoTable = tbodyId && (tbodyId.includes('promo-body')); 
                 scheduleData = isPromoTable ? currentContext.promoSchedule : currentContext.originalSchedule;
-                currentContext = latestCalculationContext; // Ensure we use main context if not rec
+                currentContext = latestCalculationContext; 
             }
             
-            // Use correct Payout, Duration, Slot based on context
             const PayoutAmount = isRecContext ? currentContext.newPayout : latestCalculationContext.payout;
             const Duration = isRecContext ? currentContext.newDuration : latestCalculationContext.duration;
             const SlotPosition = isRecContext ? currentContext.newSlot : latestCalculationContext.slot;
-            const CircleType = circleTypeSelect.value; // Always get current circle type
+            const CircleType = circleTypeSelect.value; 
             
             const BaseFeePercent = getFeePercent(CircleType, Duration, SlotPosition);
             
-            // Use correct Gross Fees based on context
             let GrossFees;
             if (isRecContext) {
                  GrossFees = currentContext.newGrossFees;
@@ -433,7 +424,6 @@
                  GrossFees = latestCalculationContext.grossFees;
             }
 
-            // Use correct Base Installment based on context
             const BaseInstallment = isRecContext ? currentContext.newBaseInstallment : latestCalculationContext.baseInstallment;
             
             const SlotPromo = getSlotPromocode(Duration, SlotPosition);
@@ -443,7 +433,6 @@
             let steps = [];
             const format = (val) => formatter.format(val);
 
-            // Logic for main metric grid buttons (using latestCalculationContext)
             switch (metricKey) {
                 case 'baseInstallment':
                     title = 'Base Monthly Installment Calculation';
@@ -483,16 +472,27 @@
                          steps = [`Inherent Slot Discount (Negative Fee): ${format(latestCalculationContext.totalSavings)}`];
                     } else if (latestCalculationContext.isZeroFee && latestCalculationContext.promoCode) {
                         const promo = getSlotPromocode(latestCalculationContext.duration, latestCalculationContext.slot);
-                        const calculatedInstallmentDiscount = latestCalculationContext.baseInstallment * promo.discount_percent;
-                        const actualInstallmentDiscount = Math.min(calculatedInstallmentDiscount, promo.discount_cap);
-                        steps = [
-                            `**Promo:** ${promo.code}`,
-                            `**Discount Type:** Installment Discount (One-Time)`,
-                             `**Base Installment:** ${format(latestCalculationContext.baseInstallment)}`,
-                            `**Discount Calculation:** ${format(latestCalculationContext.baseInstallment)} \u00D7 ${formatPercent(promo.discount_percent)} = ${format(calculatedInstallmentDiscount)}`,
-                            `**Cap Applied:** ${format(actualInstallmentDiscount)} (Capped at ${format(promo.discount_cap)})`,
-                            `**Total Savings:** **${format(actualInstallmentDiscount)}** (Applies only to Month 1 Installment)`,
-                        ];
+                        if (ZERO_FEE_PROMO_MODE === 'distributed' && promo.discount_schedule) {
+                            steps = [
+                                `**Promo:** ${promo.code}`,
+                                `**Discount Type:** Distributed Installment Discount (15% across first 3 months)`,
+                                `**Base Installment:** ${format(latestCalculationContext.baseInstallment)}`,
+                                `**Calculation Rule:** 5% per month, capped at 2,000 EGP per specific installment.`,
+                                `**Total Combined Savings:** **${format(latestCalculationContext.totalSavings)}**`
+                            ];
+                        } else {
+                            const percentToUse = promo.total_discount_percent || promo.discount_percent;
+                            const calculatedInstallmentDiscount = latestCalculationContext.baseInstallment * percentToUse;
+                            const actualInstallmentDiscount = Math.min(calculatedInstallmentDiscount, promo.discount_cap);
+                            steps = [
+                                `**Promo:** ${promo.code}`,
+                                `**Discount Type:** Installment Discount (One-Time Upfront)`,
+                                `**Base Installment:** ${format(latestCalculationContext.baseInstallment)}`,
+                                `**Discount Calculation:** ${format(latestCalculationContext.baseInstallment)} \u00D7 ${formatPercent(percentToUse)} = ${format(calculatedInstallmentDiscount)}`,
+                                `**Cap Applied:** ${format(actualInstallmentDiscount)} (Capped at ${format(promo.discount_cap)})`,
+                                `**Total Savings:** **${format(actualInstallmentDiscount)}**`
+                            ];
+                        }
                     } else if (latestCalculationContext.isPositiveFee && latestCalculationContext.promoCode) {
                          const promo = getSlotPromocode(latestCalculationContext.duration, latestCalculationContext.slot);
                         const calculatedDiscount = latestCalculationContext.grossFees * promo.discount_percent;
@@ -530,7 +530,7 @@
                     ];
                     break;
 
-                case 'rpsPromoTotal': // NEW RPS PROMO CALCULATION
+                case 'rpsPromoTotal': 
                     title = 'Final RPS Score with Promo Discount (90%) Calculation (For Normal Circles Only)';
                     steps = [
                          `**Original RPS Score:** ${format(latestCalculationContext.rpsTotal)}`,
@@ -541,7 +541,6 @@
                     break;
 
                 
-                // Logic for table row clicks (Net Installment/Net Payout)
                 case 'netInstallment':
                     if (!scheduleData || scheduleData.length === 0) {
                         steps = ['Schedule data not available.']; break;
@@ -551,17 +550,16 @@
                         steps = ['Month data not found.']; break;
                     }
                     
-                    // Fee context based on table and promo application
-                    let feesForInstallmentCalc = GrossFees; // Default Gross Fees
-                    const isPositiveFeeContext = BaseFeePercent > 0; // Fee percent for the specific slot (original or recommended)
+                    let feesForInstallmentCalc = GrossFees; 
+                    const isPositiveFeeContext = BaseFeePercent > 0; 
                     const isZeroFeeContext = BaseFeePercent === 0;
 
-                     if (isPromoTable && SlotPromo && isPositiveFeeContext) { // If it's a promo table AND positive fee
+                     if (isPromoTable && SlotPromo && isPositiveFeeContext) { 
                         const calculatedDiscount = GrossFees * SlotPromo.discount_percent;
                         const actualDiscount = Math.min(calculatedDiscount, SlotPromo.discount_cap);
-                        feesForInstallmentCalc = GrossFees - actualDiscount; // Use Net Fees
-                    } else if (isPromoTable && SlotPromo && isZeroFeeContext) { // If it's a promo table AND zero fee
-                        feesForInstallmentCalc = 0; // Use 0 fees
+                        feesForInstallmentCalc = GrossFees - actualDiscount; 
+                    } else if (isPromoTable && SlotPromo && isZeroFeeContext) { 
+                        feesForInstallmentCalc = 0; 
                     }
                     
                     const isZeroFeePromoInstall = isPromoTable && isZeroFeeContext && SlotPromo;
@@ -571,14 +569,14 @@
                     if (monthOrValue < SlotPosition) {
                          if (CircleType === 'Smart Saving') {
                              steps = [`**Base Installment:** ${format(BaseInstallment)} (Payout / Duration)`];
-                        } else if (feesForInstallmentCalc > 0) { // Positive Fee Normal (with or without discount)
+                        } else if (feesForInstallmentCalc > 0) { 
                              const feePerMonthInstall = feesForInstallmentCalc / SlotPosition;
                             steps = [
                                 `**Base Installment:** ${format(BaseInstallment)}`,
                                 `**Distributed Fee:** + ${format(feePerMonthInstall)} (${(isPromoTable ? 'Net Fees' : 'Gross Fees')} / Slot Position)`,
                                 `**Final Installment:** **${format(monthDataInstall.installment)}**`
                             ];
-                        } else if (feesForInstallmentCalc < 0) { // Negative Fee Normal
+                        } else if (feesForInstallmentCalc < 0) { 
                             const totalDiscount = Math.abs(feesForInstallmentCalc);
                             const discountPerMonth = totalDiscount / 4;
                             const isDiscountMonth = monthOrValue <= 4;
@@ -587,17 +585,37 @@
                                 `**Distributed Discount:** - ${isDiscountMonth ? format(discountPerMonth) : '0.00'} (Total Discount / 4)`,
                                 `**Final Installment:** **${format(monthDataInstall.installment)}**`
                             ];
-                        } else { // Zero Fee Normal
+                        } else { 
                              if (isZeroFeePromoInstall && SlotPromo) {
-                                 const calculatedInstallmentDiscount = BaseInstallment * SlotPromo.discount_percent;
-                                 const actualInstallmentDiscount = Math.min(calculatedInstallmentDiscount, SlotPromo.discount_cap);
-                                 if (monthOrValue === 1) {
-                                     steps = [`**Base Installment:** ${format(BaseInstallment)}`, 
-                                              `**Promo Discount (Month 1 Only):** - ${format(actualInstallmentDiscount)}`,
-                                              `**Final Installment:** **${format(monthDataInstall.installment)}**`];
+                                 if (ZERO_FEE_PROMO_MODE === 'distributed' && SlotPromo.discount_schedule) {
+                                     const scheduleItem = SlotPromo.discount_schedule.find(s => s.installment === monthOrValue);
+                                     if (scheduleItem) {
+                                         const calculatedInstallmentDiscount = BaseInstallment * scheduleItem.discount_percent;
+                                         const maxCapPerInstallment = 2000.0;
+                                         const actualInstallmentDiscount = Math.min(calculatedInstallmentDiscount, maxCapPerInstallment);
+                                         steps = [
+                                             `**Base Installment:** ${format(BaseInstallment)}`, 
+                                             `**Promo Discount (Month ${monthOrValue}):** - ${format(actualInstallmentDiscount)} (Capped at 2000 EGP)`,
+                                             `**Final Installment:** **${format(monthDataInstall.installment)}**`
+                                         ];
+                                     } else {
+                                         steps = [
+                                             `**Base Installment:** ${format(BaseInstallment)} (Promo discount schedule complete)`,
+                                             `**Final Installment:** **${format(monthDataInstall.installment)}**`
+                                         ];
+                                     }
                                  } else {
-                                     steps = [`**Base Installment:** ${format(BaseInstallment)} (Full amount applied after Month 1)`,
-                                              `**Final Installment:** **${format(monthDataInstall.installment)}**`];
+                                     const percentToUse = SlotPromo.total_discount_percent || SlotPromo.discount_percent;
+                                     const calculatedInstallmentDiscount = BaseInstallment * percentToUse;
+                                     const actualInstallmentDiscount = Math.min(calculatedInstallmentDiscount, SlotPromo.discount_cap);
+                                     if (monthOrValue === 1) {
+                                         steps = [`**Base Installment:** ${format(BaseInstallment)}`, 
+                                                  `**Promo Discount (Month 1 Only):** - ${format(actualInstallmentDiscount)}`,
+                                                  `**Final Installment:** **${format(monthDataInstall.installment)}**`];
+                                     } else {
+                                         steps = [`**Base Installment:** ${format(BaseInstallment)} (Full amount applied after Month 1)`,
+                                                  `**Final Installment:** **${format(monthDataInstall.installment)}**`];
+                                     }
                                  }
                              } else {
                                 steps = [`**Slot Type:** Zero Fee. The installment equals the Base Monthly Installment. **Final Installment:** ${format(monthDataInstall.installment)}`];
@@ -605,7 +623,7 @@
                         }
                     } else if (monthOrValue === SlotPosition) {
                          steps = [`Payout Month: Installment is **0.00 EGP**.`];
-                    } else { // Post-payout month
+                    } else { 
                         if (CircleType === 'Smart Saving') {
                              steps = [`Post-Payout Month (Smart Saving): Installment equals the **Base Monthly Installment (${format(BaseInstallment)})**. Cashback is applied separately.`];
                         } else {
@@ -619,24 +637,23 @@
                         steps = ['Schedule data not available.']; break;
                     }
                     const monthDataPayout = scheduleData.find(m => m.month === monthOrValue);
-                     if (!monthDataPayout || monthDataPayout.month !== SlotPosition) { // Ensure it's the payout month
+                     if (!monthDataPayout || monthDataPayout.month !== SlotPosition) { 
                         steps = ['Payout calculation only shown for the actual payout month.']; break;
                     }
                     
-                    // Use the correct fees for the table (Net Fees if promo table)
                     let feesForPayoutCalc = GrossFees;
-                     if (isPromoTable && SlotPromo && BaseFeePercent > 0) { // If promo table AND positive fee
+                     if (isPromoTable && SlotPromo && BaseFeePercent > 0) { 
                         const calculatedDiscount = GrossFees * SlotPromo.discount_percent;
                         const actualDiscount = Math.min(calculatedDiscount, SlotPromo.discount_cap);
-                        feesForPayoutCalc = GrossFees - actualDiscount; // Use Net Fees
-                    } else if (isPromoTable && BaseFeePercent === 0) { // If promo table and zero fee
-                        feesForPayoutCalc = 0; // Zero fee promo doesn't affect payout fees
+                        feesForPayoutCalc = GrossFees - actualDiscount; 
+                    } else if (isPromoTable && BaseFeePercent === 0) { 
+                        feesForPayoutCalc = 0; 
                     }
 
                     title = `Net Payout Breakdown (Month ${monthOrValue})`;
 
                     if (CircleType === 'Smart Saving') {
-                        const cashbackPercent = getFeePercent(CircleType, Duration, SlotPosition); // For smart saving, fee% is cashback%
+                        const cashbackPercent = getFeePercent(CircleType, Duration, SlotPosition); 
                         const cashbackAmount = PayoutAmount * cashbackPercent;
                          steps = [
                             `**Requested Payout:** ${format(PayoutAmount)}`,
@@ -644,7 +661,7 @@
                             `**Plus Cashback:** + ${format(cashbackAmount)} (${formatPercent(cashbackPercent)})`,
                             `**Final Net Payout:** **${format(monthDataPayout.netPayout)}**`
                         ];
-                    } else if (feesForPayoutCalc > 0) { // Positive Fee Normal
+                    } else if (feesForPayoutCalc > 0) { 
                         const feesRemainingPayout = feesForPayoutCalc / SlotPosition;
                         steps = [
                             `**Requested Payout:** ${format(PayoutAmount)}`,
@@ -652,7 +669,7 @@
                             `**Less Remaining Fees:** - ${format(feesRemainingPayout)} (1 installment portion of distributed ${isPromoTable ? 'net' : 'gross'} fees)`,
                             `**Final Net Payout:** **${format(monthDataPayout.netPayout)}**`
                         ];
-                    } else { // Zero or Negative Fee Normal
+                    } else { 
                         steps = [
                             `**Requested Payout:** ${format(PayoutAmount)}`,
                             `**Less Base Installment:** - ${format(BaseInstallment)}`,
@@ -661,13 +678,12 @@
                     }
                     break;
 
-                // --- Recommendation Metrics ---
                 case 'recBaseInstallment':
                     if (!latestCalculationContext.rec) break;
                     title = 'Recommended Base Monthly Installment';
                     steps = [
                         `**Recommended Payout:** ${format(latestCalculationContext.rec.newPayout)}`,
-                        `**Duration (Months):** ${Duration}`, // Duration doesn't change
+                        `**Duration (Months):** ${Duration}`,
                         `**Formula:** Payout Amount / Duration`,
                         `**Calculation:** ${format(latestCalculationContext.rec.newPayout)} / ${Duration} = **${format(latestCalculationContext.rec.newBaseInstallment)}**`,
                     ];
@@ -720,90 +736,66 @@
 
             const modalBody = document.getElementById('modal-body');
             document.getElementById('modal-title').textContent = title;
-            modalBody.innerHTML = steps.map(step => `<p>${step.replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')}</p>`).join(''); // Added Markdown bold support
+            modalBody.innerHTML = steps.map(step => `<p>${step.replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')}</p>`).join('');
             document.getElementById('calculation-modal').classList.remove('hidden');
         }
-        // --- END: Calculation Steps Modal Logic ---
 
-
-        /**
-         * 1. DATA LOOKUP HELPERS
-         */
-
-        // Gets the fee percentage from the matrix
         function getFeePercent(circleType, duration, slot) {
-            // ** FIX: Ensure key uses consistent naming convention **
             const key = `${duration}M_${circleType.toUpperCase().replace(/\s/g, '_')}`;
             const feeMatrix = calculatorData.rosca_fees_matrix[key];
-             // ** For Smart Saving, return the cashback percent directly **
             if (circleType === 'Smart Saving') {
                 switch (duration) {
                     case 6: return 0.05;
                     case 12: return 0.10;
                     case 24: return 0.20;
-                    default: return null; // Should not happen with validation
+                    default: return null;
                 }
             }
-            if (!feeMatrix) return null; // Added check for Normal types
+            if (!feeMatrix) return null; 
             const entry = feeMatrix.find(item => item.slot === slot);
             return entry ? entry.fee_percent : null;
         }
 
-        // Gets the specific promo for the current selection
         function getSlotPromocode(duration, slot) {
             return calculatorData.slot_promocodes.find(promo => 
                 promo.duration === duration && promo.slot === slot
             );
         }
 
-        // Gets the GMV Factor for RPS calculation
         function getPayoutFactor(payoutAmount) {
             const gmvTable = calculatorData.rps_datasets.gmv_factor_table;
-            
-            // Assuming GMV table is sorted by payout (which it is)
             for (let i = gmvTable.length - 1; i >= 0; i--) {
                 if (payoutAmount >= gmvTable[i].payout) {
                     return gmvTable[i].factor;
                 }
             }
-            // ** FIX: Return 0.0 if below the minimum (15000 EGP) **
             return 0.0;
         }
         
-        // Checks if the payout amount is a valid entry in the GMV table (for Normal)
         function isValidNormalPayoutAmount(payoutAmount) {
-             // ** NEW LOGIC: Must be a multiple of 3000 EGP **
              if (payoutAmount < 3000 || payoutAmount > 1200000) return false;
-             // Check for divisibility by 3000
              return payoutAmount % 3000 === 0;
         }
-         // Checks if the payout amount is valid for Smart Saving
+
         function isValidSmartSavingPayoutAmount(payoutAmount) {
              return calculatorData.smart_saving_payouts.includes(payoutAmount);
         }
 
-        // Gets the Slot Factor for RPS calculation
         function getSlotFactor(slot) {
             const slotTable = calculatorData.rps_datasets.slot_factor_table;
             const entry = slotTable.find(item => item.position === slot);
-            return entry ? entry.factor : 1; // Default factor
+            return entry ? entry.factor : 1;
         }
 
-        /**
-         * 2. DYNAMIC UI LOGIC 
-         */
-         
         function handleCircleTypeChange() {
              const circleType = circleTypeSelect.value;
              const isSmartSaving = circleType === 'Smart Saving';
 
-             // Toggle Payout Input Type
              payoutAmountInput.classList.toggle('hidden', isSmartSaving);
              payoutAmountSelect.classList.toggle('hidden', !isSmartSaving);
              payoutHelperText.textContent = isSmartSaving ? 'Select a valid payout amount.' : 'Multiples of 3,000 EGP (e.g., 3000, 6000...).';
 
              if (isSmartSaving) {
-                 // Populate Smart Saving Payout dropdown
                  payoutAmountSelect.innerHTML = '';
                  calculatorData.smart_saving_payouts.forEach(amount => {
                      const option = document.createElement('option');
@@ -818,7 +810,6 @@
                  payoutAmountInput.value = 51000; 
              }
 
-             // --- FIX: ALWAYS SHOW RPS SECTION & RECOMMENDATION CARD ---
              rpsSection.classList.remove('hidden'); 
              recommendationCard.classList.remove('hidden'); 
              
@@ -835,9 +826,7 @@
                 durations = [6, 12, 24];
             }
 
-            // Store current selection to restore if possible
             const currentDuration = durationSelect.value;
-
             durationSelect.innerHTML = '';
             durations.forEach(d => {
                 const option = document.createElement('option');
@@ -846,29 +835,24 @@
                 durationSelect.appendChild(option);
             });
             
-            // Restore selection or default to first
             if (durations.includes(parseInt(currentDuration))) {
                 durationSelect.value = currentDuration;
             } else if (durations.length > 0) {
                  durationSelect.value = durations[0];
             }
             
-            updateSlotOptions(); // This will populate slots
-            
-            // ** FIX: Ensure calculation only happens after both dropdowns have a value **
+            updateSlotOptions(); 
             if (durationSelect.value && slotSelect.value) {
-                 calculatePayout(null); // Now it's safe to call
+                 calculatePayout(null); 
             }
         }
 
         function updateSlotOptions() {
             const circleType = circleTypeSelect.value;
             const duration = parseInt(durationSelect.value);
-            
             slotSelect.innerHTML = '';
 
             if (circleType === 'Normal') {
-                // Normal Circle: Slots are 1 to the selected Duration
                 const maxSlot = duration;
                 for (let i = 1; i <= maxSlot; i++) {
                     const option = document.createElement('option');
@@ -878,7 +862,6 @@
                 }
                 slotSelect.disabled = false;
             } else if (circleType === 'Smart Saving') {
-                // Smart Saving: Slot must equal Duration
                 if (duration) {
                     const option = document.createElement('option');
                     option.value = duration;
@@ -887,37 +870,24 @@
                 }
                 slotSelect.disabled = true; 
             }
-            // ** NEW: Ensure initial slot value is set before calculation **
-            if (slotSelect.options.length > 0) {
-                 // No need to manually set value, browser default is fine
-            }
         }
 
-        /**
-         * 3. RENDERING
-         */
-
-        // Renders one of the two installment tables (Original or Promo)
         function renderInstallmentTable(tbodyId, schedule, slotPosition) {
             const tbody = document.getElementById(tbodyId);
-             if (!tbody) { console.error(`Table body not found: ${tbodyId}`); return; } // Robustness check
+             if (!tbody) { console.error(`Table body not found: ${tbodyId}`); return; }
             tbody.innerHTML = '';
             
             schedule.forEach(monthData => {
                 const isPayoutMonth = (monthData.month === slotPosition);
-                
                 const row = tbody.insertRow();
                 row.className = isPayoutMonth ? 'payout-month' : 'hover:bg-gray-50';
 
-                // Month
                 const cell1 = row.insertCell(0);
                 cell1.className = "px-3 py-2 whitespace-nowrap text-sm text-gray-700";
                 cell1.textContent = monthData.month;
                 
-                // Installment Amount
                 const cell2 = row.insertCell(1);
                 cell2.className = "px-3 py-2 whitespace-nowrap text-sm text-gray-700 font-medium";
-                // ** FIX: Added '?' button to Installment **
                 cell2.innerHTML = `
                     <span class="flex items-center">
                         ${formatter.format(monthData.installment)}
@@ -925,12 +895,10 @@
                               onclick="showCalculationSteps('netInstallment', ${monthData.month}, '${tbodyId}')">?</span>
                     </span>`;
                 
-                // Net Payout Amount 
                 const cell3 = row.insertCell(2);
                 cell3.className = "px-3 py-2 whitespace-nowrap text-sm text-gray-700";
                 
                 if (isPayoutMonth) {
-                    // ** FIX: Added '?' button to Net Payout **
                      cell3.innerHTML = `
                         <span class="flex items-center">
                             ${formatter.format(monthData.netPayout)}
@@ -941,7 +909,6 @@
                      cell3.textContent = '-';
                 }
                 
-                // Apply styling based on payout month
                 if (isPayoutMonth) {
                     cell3.classList.remove('text-gray-700'); 
                     cell3.classList.add('text-green-700', 'font-bold');
@@ -952,25 +919,16 @@
             });
         }
 
-        // Renders the two tables within the recommendation section
         function renderRecommendationDetails(originalSchedule, newSchedule, currentSlot, recommendedSlot, newMetrics, recommendedSlotIsNegativeFee) {
-            
-            // The position to highlight the payout month in BOTH tables of the recommendation section
             const payoutPositionForRec = recommendedSlot;
-
-            // Re-render original schedule (no promo)
             renderInstallmentTable('rec-table-original-body', originalSchedule, payoutPositionForRec);
-
-            // Render the new recommended schedule
             renderInstallmentTable('rec-table-new-body', newSchedule, payoutPositionForRec);
 
-            // Update new metrics grid
             document.getElementById('rec-base-installment').textContent = formatter.format(newMetrics.newBaseInstallment);
             document.getElementById('rec-gross-fees').textContent = formatter.format(Math.abs(newMetrics.newGrossFees));
             document.getElementById('rec-promo-code').textContent = newMetrics.newPromoCode || 'N/A';
-            document.getElementById('rec-total-savings').textContent = formatter.format(newMetrics.newTotalSavings); // NEW SAVINGS METRIC
+            document.getElementById('rec-total-savings').textContent = formatter.format(newMetrics.newTotalSavings);
             
-            // Color code new gross fees
             const recGrossFeesEl = document.getElementById('rec-gross-fees');
             recGrossFeesEl.classList.remove('text-green-900', 'text-red-600');
              if (newMetrics.newGrossFees > 0) {
@@ -979,19 +937,16 @@
                 recGrossFeesEl.classList.add('text-green-900');
             }
             
-            // ** NEW CONSTRAINT: Hide promo comparison wrapper if recommended slot is negative **
-            if (recommendedSlotIsNegativeFee || newMetrics.newPromoCode === 'N/A') {
+             if (recommendedSlotIsNegativeFee || newMetrics.newPromoCode === 'N/A') {
                  recPromoComparisonWrapper.classList.add('hidden');
-                 // For negative slots, gross fees is the discount, so we clear the promo metrics but keep the schedule tables.
                  if (recommendedSlotIsNegativeFee) {
                      document.getElementById('rec-promo-code').textContent = 'N/A (Discount Slot)'; 
                      document.getElementById('rec-total-savings').textContent = formatter.format(newMetrics.newTotalSavings);
                  }
-            } else {
+             } else {
                  recPromoComparisonWrapper.classList.remove('hidden');
-            }
+             }
 
-            // ** NEW: Set the summary text **
             const summaryTextEl = document.getElementById('rec-summary-text');
             if (newMetrics.type === 'payout') {
                 summaryTextEl.textContent = `Increase Payout: ${formatter.format(newMetrics.originalPayout)} \u2192 ${formatter.format(newMetrics.newPayout)}`;
@@ -1002,17 +957,11 @@
             recommendedRpsWrapper.classList.remove('hidden');
         }
         
-        // Updated function signature to include totalSavings
-        // Updated function signature to include totalSavings
-        // Updated function signature to include totalSavings
         function renderPayoutResults(installmentAmount, grossFees, promoCode, promoDetails, payoutFactor, slotFactor, rpsTotal, feeType, rpsRecommendation, totalSavings, rpsPromoTotal) { 
-            
-            // 1. Basic Metrics
             document.getElementById('result-base-installment').textContent = formatter.format(installmentAmount);
             document.getElementById('result-gross-fees').textContent = formatter.format(Math.abs(grossFees)); 
             document.getElementById('result-total-savings').textContent = formatter.format(totalSavings); 
 
-            // 2. Color Coding for Gross Fees
             const grossFeesEl = document.getElementById('result-gross-fees');
             grossFeesEl.classList.remove('text-red-600', 'text-green-600', 'text-yellow-800');
             if (circleTypeSelect.value === 'Smart Saving') {
@@ -1025,21 +974,17 @@
                 grossFeesEl.classList.add('text-yellow-800');
             }
 
-            // 3. Promocode Display
             document.getElementById('result-promo-code').textContent = promoCode || 'N/A';
             document.getElementById('result-promo-details').textContent = promoDetails || (feeType === 'Negative Fee' ? 'No promo available for discount slots.' : 'No promo applies to this slot.');
             
-            // 4. RPS Display (Show for ALL types)
             document.getElementById('rps-payout-factor').textContent = payoutFactor.toFixed(2);
             document.getElementById('rps-slot-factor').textContent = slotFactor;
             document.getElementById('rps-total').textContent = formatter.format(rpsTotal);
             document.getElementById('result-rps-promo-total').textContent = formatter.format(rpsPromoTotal);
             
-            // 5. Recommendation Section Rendering
             let recText;
             if (rpsRecommendation.upgradeFound) {
                 recText = "An RPS upgrade opportunity has been identified for this selection:";
-                // Ensure the RPS wrapper is visible if an upgrade is found
                 recommendedRpsWrapper.classList.remove('hidden');
             } else {
                 const strategicRec = calculatorData.recommendation_list.find(r => r.trigger_type === feeType);
@@ -1050,15 +995,12 @@
             document.getElementById('recommendation-text').textContent = recText;
             document.getElementById('rec-summary-text').textContent = rpsRecommendation.text || ''; 
 
-            // --- FIX STARTS HERE: Handle Smart Saving RPS Display ---
             let displayRecOriginalRps;
             
             if (rpsRecommendation.upgradeFound) {
                 if (circleTypeSelect.value === 'Smart Saving') {
-                    // Smart Saving: No discount, so Original = New RPS
                     displayRecOriginalRps = rpsRecommendation.newRps;
                 } else {
-                    // Normal: Reverse the 10% discount (divide by 0.90) to show Original
                     displayRecOriginalRps = rpsRecommendation.newRps / 0.90;
                 }
                 document.getElementById('recommended-rps-total').textContent = formatter.format(displayRecOriginalRps);
@@ -1067,12 +1009,8 @@
                 document.getElementById('recommended-rps-total').textContent = 'N/A';
                 document.getElementById('rec-rps-promo-total').textContent = 'N/A';
             }
-            // --- FIX ENDS HERE ---
         }
 
-        /**
-         * 4. ERROR HANDLING
-         */
         function showError(message) {
             errorMessageDiv.textContent = message;
             errorMessageDiv.classList.remove('hidden');
@@ -1083,37 +1021,20 @@
             errorMessageDiv.classList.add('hidden');
         }
 
-        /**
-         * 5. MAIN CALCULATION FUNCTION
-         */
-        
-        // --- UPDATED RPS RECOMMENDATION LOGIC (Handles Normal 3k multiples & Smart Saving fixed amounts) ---
         function getRpsRecommendation(currentPayout, duration, currentSlot, isPositiveFee, baseFeePercent, baseInstallment, grossFeesEGP, currentRpsTotal) {
-            // Recommendation object structure
             const NO_UPGRADE = { upgradeFound: false, text: '', newRps: 0, newSchedule: null };
-            
-            // Validation check
             if (duration < 6 || currentSlot > duration) return NO_UPGRADE;
             
             const currentGMVFactor = getPayoutFactor(currentPayout);
             const currentSlotFactor = getSlotFactor(currentSlot);
-            const RPS_PROMO_MULTIPLIER = 0.90; // 10% discount
+            const RPS_PROMO_MULTIPLIER = 0.90; 
             
-            // Define strictness for financial advice
-            // Normal: Strict 25% cap (don't suggest huge jumps)
-            // Smart Saving: Loose cap (200%) because fixed tiers have large gaps (e.g. 30k -> 60k)
             const INCREASE_CAP = circleTypeSelect.value === 'Smart Saving' ? 2.0 : 0.25; 
 
-            // ------------------------------------
-            // A. PRIORITY 1: PAYOUT UPGRADE (GMV Factor)
-            // ------------------------------------
-            
             let targetPayout = null;
             let targetFactor = 0;
             
             if (circleTypeSelect.value === 'Smart Saving') {
-                // --- SMART SAVING LOGIC ---
-                // Look for the next payout in the specific fixed list that yields a higher Factor
                 const allowedPayouts = calculatorData.smart_saving_payouts;
                 const currentIdx = allowedPayouts.indexOf(currentPayout);
                 
@@ -1125,13 +1046,11 @@
                         if (candidateFactor > currentGMVFactor) {
                             targetPayout = candidatePayout;
                             targetFactor = candidateFactor;
-                            break; // Found the next tier up
+                            break; 
                         }
                     }
                 }
             } else {
-                // --- NORMAL LOGIC ---
-                // Look at GMV table, find next factor, calculate min payout, round to 3000
                 const gmvTable = calculatorData.rps_datasets.gmv_factor_table;
                 const distinctFactors = [...new Set(gmvTable.map(item => item.factor))].sort((a, b) => a - b);
                 const nextFactorIndex = distinctFactors.findIndex(f => f > currentGMVFactor);
@@ -1141,7 +1060,6 @@
                     let rawMinPayout = gmvTable.find(item => item.factor === targetFactor)?.payout;
                     
                     if (rawMinPayout) {
-                        // Round up to nearest 3000 if not divisible
                         if (rawMinPayout % 3000 !== 0) {
                             targetPayout = Math.ceil(rawMinPayout / 3000) * 3000;
                         } else {
@@ -1151,22 +1069,14 @@
                 }
             }
 
-            // Process the upgrade if a target was found
             if (targetPayout) {
                 const increasePercent = (targetPayout - currentPayout) / currentPayout;
 
-                // Apply financial constraint check
                 if (increasePercent > 0 && increasePercent <= INCREASE_CAP) {
-                    
-                    // --- Calculate recommended schedule details ---
-                    const newRpsOriginal = (targetFactor * currentSlotFactor * 50); // RPS before promo discount
-                    // Smart Saving usually doesn't have promo discounts on RPS, but keeping formula consistent
+                    const newRpsOriginal = (targetFactor * currentSlotFactor * 50); 
                     const newRpsTotal = circleTypeSelect.value === 'Normal' ? newRpsOriginal * RPS_PROMO_MULTIPLIER : newRpsOriginal; 
                     
                     const newBaseInstallment = targetPayout / duration;
-                    
-                    // Recalculate fees (Smart Saving fee % might change based on payout? usually only duration)
-                    // Note: Code assumes fee % depends on duration/slot, not payout.
                     const newGrossFees = targetPayout * baseFeePercent; 
 
                     const newPromo = circleTypeSelect.value === 'Normal' ? getSlotPromocode(duration, currentSlot) : null; 
@@ -1174,7 +1084,6 @@
                     let newIsZeroPromo = false;
                     let newTotalSavings = 0;
 
-                    // Promo Logic (Only for Normal)
                     if (newPromo && circleTypeSelect.value === 'Normal') {
                         if (isPositiveFee) {
                             const calculatedDiscount = newGrossFees * newPromo.discount_percent;
@@ -1184,12 +1093,19 @@
                         } else if (baseFeePercent === 0) {
                                 newNetFees = 0;
                                 newIsZeroPromo = true;
-                                const calculatedInstallmentDiscount = newBaseInstallment * newPromo.discount_percent;
-                                const actualInstallmentDiscount = Math.min(calculatedInstallmentDiscount, newPromo.discount_cap);
-                                newTotalSavings = actualInstallmentDiscount; 
+                                if (ZERO_FEE_PROMO_MODE === 'distributed' && newPromo.discount_schedule) {
+                                    const maxCapPerInstallment = 2000.0;
+                                    newPromo.discount_schedule.forEach(scheduleItem => {
+                                        const calculatedInstallmentDiscount = newBaseInstallment * scheduleItem.discount_percent;
+                                        newTotalSavings += Math.min(calculatedInstallmentDiscount, maxCapPerInstallment);
+                                    });
+                                } else {
+                                    const percentToUse = newPromo.total_discount_percent || newPromo.discount_percent;
+                                    const calculatedInstallmentDiscount = newBaseInstallment * percentToUse;
+                                    newTotalSavings = Math.min(calculatedInstallmentDiscount, newPromo.discount_cap); 
+                                }
                         }
                     } else if (circleTypeSelect.value === 'Smart Saving') {
-                        // Smart Saving "Savings" = The Cashback Amount (Gross Fees)
                         newTotalSavings = Math.abs(newGrossFees);
                     } else if (baseFeePercent < 0) { 
                         newTotalSavings = Math.abs(newGrossFees);
@@ -1217,14 +1133,8 @@
                 }
             }
             
-            // ------------------------------------
-            // B. PRIORITY 2: SLOT UPGRADE (Position Factor)
-            // ------------------------------------
-            
-            // Slot upgrades are NOT available for Smart Saving (fixed slots)
             if (circleTypeSelect.value === 'Smart Saving') return NO_UPGRADE;
 
-            // ** CONSTRAINT: If slot is 1, skip slot recommendations **
             if (currentSlot === 1) return NO_UPGRADE;
             
             let checkRange = isPositiveFee ? 1 : 2; 
@@ -1269,9 +1179,17 @@
                             } else if (targetFeePercent === 0) {
                                  newNetFees = 0;
                                  newIsZeroPromo = true;
-                                 const calculatedInstallmentDiscount = baseInstallment * newPromo.discount_percent; 
-                                 const actualInstallmentDiscount = Math.min(calculatedInstallmentDiscount, newPromo.discount_cap);
-                                 newTotalSavings = actualInstallmentDiscount; 
+                                 if (ZERO_FEE_PROMO_MODE === 'distributed' && newPromo.discount_schedule) {
+                                     const maxCapPerInstallment = 2000.0;
+                                     newPromo.discount_schedule.forEach(scheduleItem => {
+                                         const calculatedInstallmentDiscount = baseInstallment * scheduleItem.discount_percent;
+                                         newTotalSavings += Math.min(calculatedInstallmentDiscount, maxCapPerInstallment);
+                                     });
+                                 } else {
+                                     const percentToUse = newPromo.total_discount_percent || newPromo.discount_percent;
+                                     const calculatedInstallmentDiscount = baseInstallment * percentToUse; 
+                                     newTotalSavings = Math.min(calculatedInstallmentDiscount, newPromo.discount_cap); 
+                                 }
                             }
                         } else if (targetFeePercent < 0) {
                              const totalDiscount = Math.abs(newGrossFees);
@@ -1305,7 +1223,6 @@
             
             return bestSlotRecommendation;
         }
-        // --- END NEW RPS RECOMMENDATION LOGIC ---
 
         function calculatePayout(event) {
             try {
@@ -1313,7 +1230,6 @@
                 hideError();
                 recommendedRpsWrapper.classList.add('hidden'); 
 
-                // --- 1. Get and Validate Inputs ---
                 const CircleType = circleTypeSelect.value;
                 const Duration = parseInt(durationSelect.value);
                 const SlotPosition = parseInt(slotSelect.value);
@@ -1335,7 +1251,6 @@
                     return;
                 }
 
-                // --- 2. Base Calculation ---
                 const baseInstallment = PayoutAmount / Duration;
                 const baseFeePercent = getFeePercent(CircleType, Duration, SlotPosition);
                 
@@ -1346,10 +1261,8 @@
                 const isZeroFee = baseFeePercent === 0;
                 const isNegativeFee = baseFeePercent < 0;
 
-                // --- 3. Determine Original Schedule ---
                 const originalSchedule = buildSchedule(baseInstallment, grossFeesEGP, Duration, SlotPosition, PayoutAmount, false, CircleType); 
                 
-                // --- 4. Determine Promo Schedule ---
                 let promoSchedule = null;
                 let promoCode = null;
                 let promoDetails = null;
@@ -1358,10 +1271,9 @@
 
                 const slotPromo = getSlotPromocode(Duration, SlotPosition);
                 
-                // Promo Logic (Only for Normal)
                 if (slotPromo && CircleType === 'Normal') { 
                     promoCode = slotPromo.code;
-                    promoDetails = `Discount: ${formatPercent(slotPromo.discount_percent)} / Cap: ${formatter.format(slotPromo.discount_cap)}`;
+                    promoDetails = `Discount: ${formatPercent(slotPromo.total_discount_percent || slotPromo.discount_percent)} / Cap: ${formatter.format(slotPromo.discount_cap)}`;
                     
                     if (isPositiveFee) {
                         const calculatedDiscount = grossFeesEGP * slotPromo.discount_percent;
@@ -1370,9 +1282,19 @@
                         totalSavings = actualDiscount; 
                         promoSchedule = buildSchedule(baseInstallment, netFeesEGP, Duration, SlotPosition, PayoutAmount, false, CircleType);
                     } else if (isZeroFee) {
-                        const calculatedInstallmentDiscount = baseInstallment * slotPromo.discount_percent;
-                        const actualInstallmentDiscount = Math.min(calculatedInstallmentDiscount, slotPromo.discount_cap);
-                        totalSavings = actualInstallmentDiscount; 
+                        let actualTotalDiscount = 0;
+                        if (ZERO_FEE_PROMO_MODE === 'distributed' && slotPromo.discount_schedule) {
+                            const maxCapPerInstallment = 2000.0;
+                            slotPromo.discount_schedule.forEach(scheduleItem => {
+                                const calculatedInstallmentDiscount = baseInstallment * scheduleItem.discount_percent;
+                                actualTotalDiscount += Math.min(calculatedInstallmentDiscount, maxCapPerInstallment);
+                            });
+                        } else {
+                            const percentToUse = slotPromo.total_discount_percent || slotPromo.discount_percent;
+                            const calculatedInstallmentDiscount = baseInstallment * percentToUse;
+                            actualTotalDiscount = Math.min(calculatedInstallmentDiscount, slotPromo.discount_cap);
+                        }
+                        totalSavings = actualTotalDiscount; 
                         promoSchedule = buildSchedule(baseInstallment, 0, Duration, SlotPosition, PayoutAmount, true, CircleType); 
                     }
                 } else if (isNegativeFee && CircleType === 'Normal') {
@@ -1382,16 +1304,13 @@
                      netFeesEGP = grossFeesEGP;
                 }
 
-                // --- 5. RPS Calculation Logic (ENABLED FOR ALL TYPES) ---
                 const payoutFactor = getPayoutFactor(PayoutAmount);
                 const slotFactor = getSlotFactor(SlotPosition);
                 const rpsTotal = payoutFactor * slotFactor * 50;
                 
-                // RPS Promo is 90% for Normal, but 100% (no change) for Smart Saving
                 const rpsPromoMultiplier = CircleType === 'Normal' ? 0.90 : 1.0;
                 const rpsPromoTotal = rpsTotal * rpsPromoMultiplier;
 
-                // --- 6. RPS Recommendation ---
                 const rpsRecommendation = getRpsRecommendation(PayoutAmount, Duration, SlotPosition, isPositiveFee, baseFeePercent, baseInstallment, grossFeesEGP, rpsTotal); 
 
                 latestCalculationContext = {
@@ -1416,7 +1335,6 @@
                     promoCode: promoCode 
                 };
 
-                // --- 7. Render Results ---
                 let feeType;
                 if (CircleType === 'Smart Saving') {
                     feeType = 'Smart Saving';
@@ -1443,7 +1361,6 @@
                     renderInstallmentTable('installment-table-promo-body', promoSchedule, SlotPosition);
                 }
 
-                // Render Recommendation Details
                 if (rpsRecommendation.upgradeFound) {
                     if (rpsRecommendation.newScheduleOriginal && rpsRecommendation.newSchedule) {
                         const recommendedSlotFeePercent = getFeePercent('Normal', Duration, rpsRecommendation.newSlot);
@@ -1483,17 +1400,12 @@
             }
         }
 
-        /**
-         * 8. SCHEDULE BUILDER
-         */
-
-        function buildSchedule(monthlyInstallment, totalFees, duration, slotPosition, PayoutAmount, isZeroFeePromo, circleType) { // Added circleType
+        function buildSchedule(monthlyInstallment, totalFees, duration, slotPosition, PayoutAmount, isZeroFeePromo, circleType) {
             const schedule = [];
             const isPositiveOrZeroFee = totalFees >= 0;
 
-            // --- SMART SAVING LOGIC ---
             if (circleType === 'Smart Saving') {
-                const cashbackPercent = getFeePercent(circleType, duration, slotPosition); // Fee % is Cashback % here
+                const cashbackPercent = getFeePercent(circleType, duration, slotPosition);
                 const cashbackAmount = PayoutAmount * cashbackPercent;
                 const baseInstallment = PayoutAmount / duration;
 
@@ -1501,11 +1413,10 @@
                     let installment = baseInstallment;
                     let netPayout = 0;
 
-                    if (i === slotPosition) { // Payout month is always the last month (slot = duration)
+                    if (i === slotPosition) { 
                         installment = 0;
-                        netPayout = PayoutAmount - baseInstallment + cashbackAmount; // Payout - Installment + Cashback
+                        netPayout = PayoutAmount - baseInstallment + cashbackAmount; 
                     } else if (i > slotPosition) {
-                         // Should not happen for Smart Saving as payout is last month
                          installment = 0; 
                     }
                      schedule.push({
@@ -1514,59 +1425,47 @@
                         netPayout: netPayout,
                     });
                  }
-                 return schedule; // Exit early for Smart Saving
+                 return schedule; 
             }
 
-            // --- NORMAL CIRCLE LOGIC ---
-
-            // Positive/Zero Fee Schedule Logic
             if (isPositiveOrZeroFee) {
                 
-                // Total fees must be non-negative for this block
                 const feesToDistribute = Math.max(0, totalFees); 
-                const distributedFeePerMonth = slotPosition > 0 ? feesToDistribute / slotPosition : 0; // Avoid division by zero
+                const distributedFeePerMonth = slotPosition > 0 ? feesToDistribute / slotPosition : 0; 
                 
-                // Calculate the one-time discount amount for Zero Fee Promo
-                let oneTimeDiscount = 0;
-                if (isZeroFeePromo) {
-                     const promo = getSlotPromocode(duration, slotPosition);
-                     if (promo) {
-                         const calculatedDiscount = monthlyInstallment * promo.discount_percent;
-                         oneTimeDiscount = Math.min(calculatedDiscount, promo.discount_cap);
-                     }
-                }
-
                 for (let i = 1; i <= duration; i++) {
                     let installment = monthlyInstallment;
                     let netPayout = 0;
                     
                     if (i < slotPosition) {
-                        // Months before Payout: Add distributed fee (only if fees > 0)
                         if (feesToDistribute > 0 && !isZeroFeePromo) {
-                           // Positive Fee: Fee is collected in installments
                            installment = monthlyInstallment + distributedFeePerMonth;
                         } else if (isZeroFeePromo) {
-                           // Zero Fee Promo: Apply one-time discount to Month 1 only
-                           if (i === 1) {
-                                installment = monthlyInstallment - oneTimeDiscount;
-                           } else {
-                                installment = monthlyInstallment;
-                           }
+                            let currentInstallmentDiscount = 0;
+                            const promo = getSlotPromocode(duration, slotPosition);
+
+                            if (ZERO_FEE_PROMO_MODE === 'distributed' && promo && promo.discount_schedule) {
+                                const maxCapPerInstallment = 2000.0;
+                                const scheduleItem = promo.discount_schedule.find(s => s.installment === i);
+                                if (scheduleItem) {
+                                    const calculatedDiscount = monthlyInstallment * scheduleItem.discount_percent;
+                                    currentInstallmentDiscount = Math.min(calculatedDiscount, maxCapPerInstallment);
+                                }
+                            } else if (promo && i === 1) {
+                                const percentToUse = promo.total_discount_percent || promo.discount_percent;
+                                const calculatedDiscount = monthlyInstallment * percentToUse;
+                                currentInstallmentDiscount = Math.min(calculatedDiscount, promo.discount_cap);
+                            }
+
+                            installment = monthlyInstallment - currentInstallmentDiscount;
                         }
                     } else if (i === slotPosition) {
-                        // Payout Month
                         installment = 0;
                         
-                        // Final Payout calculation 
                         if (feesToDistribute > 0) {
-                            // Fees remaining to be collected in the payout month is equal to distributedFeePerMonth
                             const feesRemainingToBeCollected = distributedFeePerMonth;
-                            
-                            // Net Payout = Payout Amount - base installment - fees remaining
                             netPayout = PayoutAmount - monthlyInstallment - feesRemainingToBeCollected; 
-                            
                         } else {
-                            // Zero Fees: Only deduct base installment
                             netPayout = PayoutAmount - monthlyInstallment;
                         }
 
@@ -1579,26 +1478,21 @@
                     });
                 }
             } else {
-                // Negative Fee Schedule Logic (Discount)
                 const totalDiscount = Math.abs(totalFees);
-                const discountedInstallmentMonths = 4; // First 4 months
+                const discountedInstallmentMonths = 4; 
 
-                // Distributed Discount Amount (DDA)
                 const DDA = totalDiscount / discountedInstallmentMonths;
 
                 for (let i = 1; i <= duration; i++) {
                     let installment = monthlyInstallment;
                     
                     if (i <= discountedInstallmentMonths) {
-                        // Deduct discount from the first 4 installments
                         installment = monthlyInstallment - DDA;
                     }
                     
                     let netPayout = 0;
                     if (i === slotPosition) {
-                        // Payout Month
                         installment = 0;
-                        // Net Payout for negative fee (discount) slots: Original Payout - Base Installment
                         netPayout = PayoutAmount - monthlyInstallment;
                     } 
 
@@ -1612,22 +1506,14 @@
             return schedule;
         }
 
-
-        /**
-         * 6. EVENT LISTENERS & INITIALIZATION
-         */
-        
-        // ** MODIFICATION 2: The init() function is now async to fetch data first **
         async function init() {
             try {
-                // Fetch the external data file
-                const response = await fetch('data.json'); // Assumes data.json is in the same folder
+                const response = await fetch('data.json'); 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 calculatorData = await response.json();
 
-                // Now that data is loaded, attach listeners
                 circleTypeSelect.addEventListener('change', handleCircleTypeChange);
 
                 durationSelect.addEventListener('change', () => {
@@ -1651,21 +1537,17 @@
 
                 form.addEventListener('submit', calculatePayout);
 
-                // Initial population and calculation trigger
                 handleCircleTypeChange();
 
             } catch (e) {
                 console.error('Failed to load initial data:', e);
-                // Display a critical error to the user in the UI
                 const errorDiv = document.getElementById('error-message');
                 errorDiv.textContent = `CRITICAL ERROR: Could not load calculator data from data.json. Please check the file. [${e.message}]`;
                 errorDiv.classList.remove('hidden');
-                // Hide the main form to prevent usage
                 document.getElementById('calculator-form').classList.add('hidden');
             }
         }
 
-        // Start initialization after the DOM is fully loaded
         window.onload = init; 
     </script>
 
