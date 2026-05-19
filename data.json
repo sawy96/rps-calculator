@@ -71,7 +71,7 @@
     
     { "duration": 6, "slot": 3, "code": "NRes36", "discount_percent": 0.25, "discount_cap": 3500.0 },
     { "duration": 10, "slot": 3, "code": "NRes36", "discount_percent": 0.25, "discount_cap": 3500.0 },
-    { "duration": 12, "slot": 3, "code": "NRes36", "discount_percent": 0.50, "discount_cap": 3500.0 },
+    { "duration": 12, "slot": 3, "code": "NRes36", "discount_percent": 0.25, "discount_cap": 3500.0 },
     
     { "duration": 10, "slot": 4, "code": "NRes46", "discount_percent": 0.25, "discount_cap": 3000.0 },
     { "duration": 12, "slot": 4, "code": "NRes46", "discount_percent": 0.25, "discount_cap": 3000.0 },
