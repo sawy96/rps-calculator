@@ -451,12 +451,12 @@
                          ];
                     } else if (latestCalculationContext.baseFeePercent > 0) {
                         steps = [
-    `**Requested Payout:** ${format(latestCalculationContext.payout)}`,
-    `**Base Admin Fee Percentage:** ${formatPercent(latestCalculationContext.baseFeePercent)}`,
-    `**Base Fee Calculation:** ${format(latestCalculationContext.payout)} × ${formatPercent(latestCalculationContext.baseFeePercent)} = ${format(latestCalculationContext.baseGrossFees)}`,
-    `**VAT Calculation (${(VAT_RATE * 100).toFixed(0)}%):** ${format(latestCalculationContext.baseGrossFees)} × ${(VAT_RATE * 100).toFixed(0)}% = ${format(latestCalculationContext.vatAmount)}`,
-    `**Total Gross Fees (Base + VAT):** ${format(latestCalculationContext.baseGrossFees)} + ${format(latestCalculationContext.vatAmount)} = **${format(Math.abs(latestCalculationContext.grossFees))}**`
-];
+                            `**Requested Payout:** ${format(latestCalculationContext.payout)}`,
+                            `**Base Admin Fee Percentage:** ${formatPercent(latestCalculationContext.baseFeePercent)}`,
+                            `**Base Fee Calculation:** ${format(latestCalculationContext.payout)} × ${formatPercent(latestCalculationContext.baseFeePercent)} = ${format(latestCalculationContext.baseGrossFees)}`,
+                            `**VAT Calculation (${(VAT_RATE * 100).toFixed(0)}%):** ${format(latestCalculationContext.baseGrossFees)} × ${(VAT_RATE * 100).toFixed(0)}% = ${format(latestCalculationContext.vatAmount)}`,
+                            `**Total Gross Fees (Base + VAT):** ${format(latestCalculationContext.baseGrossFees)} + ${format(latestCalculationContext.vatAmount)} = **${format(Math.abs(latestCalculationContext.grossFees))}**`
+                        ];
                     } else {
                         steps = [
                             `**Requested Payout:** ${format(latestCalculationContext.payout)}`,
@@ -696,12 +696,12 @@
                     title = 'Recommended Original Gross Fees';
                     if (latestCalculationContext.rec.newBaseFeePercent > 0) {
                         steps = [
-    `**Recommended Payout:** ${format(latestCalculationContext.rec.newPayout)}`,
-    `**Base Admin Fee Percentage:** ${formatPercent(latestCalculationContext.rec.newBaseFeePercent)}`,
-    `**Base Fee Calculation:** ${format(latestCalculationContext.rec.newPayout)} × ${formatPercent(latestCalculationContext.rec.newBaseFeePercent)} = ${format(latestCalculationContext.rec.newBaseGrossFees)}`,
-    `**VAT Calculation (${(VAT_RATE * 100).toFixed(0)}%):** ${format(latestCalculationContext.rec.newBaseGrossFees)} × ${(VAT_RATE * 100).toFixed(0)}% = ${format(latestCalculationContext.rec.newVatAmount)}`,
-    `**Total Gross Fees (Base + VAT):** ${format(latestCalculationContext.rec.newBaseGrossFees)} + ${format(latestCalculationContext.rec.newVatAmount)} = **${format(Math.abs(latestCalculationContext.rec.newGrossFees))}**`
-];
+                            `**Recommended Payout:** ${format(latestCalculationContext.rec.newPayout)}`,
+                            `**Base Admin Fee Percentage:** ${formatPercent(latestCalculationContext.rec.newBaseFeePercent)}`,
+                            `**Base Fee Calculation:** ${format(latestCalculationContext.rec.newPayout)} × ${formatPercent(latestCalculationContext.rec.newBaseFeePercent)} = ${format(latestCalculationContext.rec.newBaseGrossFees)}`,
+                            `**VAT Calculation (${(VAT_RATE * 100).toFixed(0)}%):** ${format(latestCalculationContext.rec.newBaseGrossFees)} × ${(VAT_RATE * 100).toFixed(0)}% = ${format(latestCalculationContext.rec.newVatAmount)}`,
+                            `**Total Gross Fees (Base + VAT):** ${format(latestCalculationContext.rec.newBaseGrossFees)} + ${format(latestCalculationContext.rec.newVatAmount)} = **${format(Math.abs(latestCalculationContext.rec.newGrossFees))}**`
+                        ];
                     } else {
                         steps = [
                             `**Recommended Payout:** ${format(latestCalculationContext.rec.newPayout)}`,
@@ -1004,7 +1004,7 @@
             } else {
                 const strategicRec = calculatorData.recommendation_list.find(r => r.trigger_type === feeType);
                 recText = strategicRec ? `${strategicRec.text} \n\n(Note: No immediate RPS score upgrade was found for this combination.)` : 'No recommendation available.';
-                recommendedRpsWrapper.add('hidden');
+                recommendedRpsWrapper.classList.add('hidden');
             }
             
             document.getElementById('recommendation-text').textContent = recText;
@@ -1160,7 +1160,7 @@
 
             if (currentSlot === 1) return NO_UPGRADE;
             
-            let checkRange = currentContext.baseFeePercent > 0 ? 1 : 2; 
+            let checkRange = baseFeePercent > 0 ? 1 : 2; 
             let bestSlotRecommendation = NO_UPGRADE;
             const RPS_FACTOR_JUMP = 2;
             let maxFactorJump = 0;
@@ -1176,7 +1176,7 @@
                     
                     const targetSlotFactor = getSlotFactor(targetSlot);
 
-                    if (currentContext.baseFeePercent > 0 && targetFeePercent < 0.00001) {
+                    if (baseFeePercent > 0 && targetFeePercent < 0.00001) {
                          continue; 
                     }
 
