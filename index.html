@@ -103,9 +103,9 @@
                     <div id="payout-input-container" class="col-span-1 md:col-span-2 lg:col-span-1">
                          <label for="payout-amount-normal" class="block text-sm font-medium text-gray-700 mb-1">Requested Payout (EGP)</label>
                         <input type="number" id="payout-amount-normal" name="payout-amount-normal" 
-       min="3000" max="1200000" step="3000" required value="51000"
-       class="input-style w-full border border-gray-300 p-2 rounded-lg focus:outline-none"
-       placeholder="e.g. 51000">
+                               min="3000" max="1200000" step="3000" required value="51000"
+                               class="input-style w-full border border-gray-300 p-2 rounded-lg focus:outline-none"
+                               placeholder="e.g. 51000">
                         <select id="payout-amount-smart" name="payout-amount-smart" class="input-style w-full border border-gray-300 p-2 rounded-lg focus:outline-none bg-white hidden">
                             </select>
                          <p id="payout-helper-text" class="text-xs text-gray-400 mt-1">Multiples of 3,000 EGP (e.g., 3000, 6000, 9000...).</p>
@@ -286,14 +286,14 @@
                                     Potential New RPS Score
                                     <span class="calc-button" onclick="showCalculationSteps('recRpsTotal', document.getElementById('recommended-rps-total').textContent)">?</span>
                                 </p>
-                                <p id="recommended-rps-total" class="text-xl font-bold text-green-900 mt-1">0.00</p>
+                                <p id="recommended-rps-total" class="font-bold text-green-900 mt-1">0.00</p>
                             </div>
-                                                                                <div class="p-2 bg-red-200 rounded-lg">
+                                                                                                                <div class="p-2 bg-red-200 rounded-lg">
                                 <p class="text-xs font-medium text-red-900 flex items-center">
                                     Potential New RPS (90%)
                                     <span class="calc-button" onclick="showCalculationSteps('recRpsTotalPromo', document.getElementById('rec-rps-promo-total').textContent)">?</span>
                                 </p>
-                                <p id="rec-rps-promo-total" class="text-xl font-bold text-red-900 mt-1">0.00</p>
+                                <p id="rec-rps-promo-total" class="font-bold text-red-900 mt-1">0.00</p>
                             </div>
                         </div>
 
@@ -356,9 +356,8 @@
         // ==========================================
         // DEVELOPER CONFIGURATION
         // ==========================================
-        // Set this to 'distributed' to split the 15% discount across the first 3 months (capped at 2000 per month).
-        // Set this to 'upfront' to apply the 15% discount entirely to the first month (capped at 5000 total).
         const ZERO_FEE_PROMO_MODE = 'distributed'; 
+        const VAT_RATE = 0.14; // 14% VAT Rate
         // ==========================================
 
         let calculatorData;
@@ -415,8 +414,6 @@
             const SlotPosition = isRecContext ? currentContext.newSlot : latestCalculationContext.slot;
             const CircleType = circleTypeSelect.value; 
             
-            const BaseFeePercent = getFeePercent(CircleType, Duration, SlotPosition);
-            
             let GrossFees;
             if (isRecContext) {
                  GrossFees = currentContext.newGrossFees;
@@ -427,7 +424,6 @@
             const BaseInstallment = isRecContext ? currentContext.newBaseInstallment : latestCalculationContext.baseInstallment;
             
             const SlotPromo = getSlotPromocode(Duration, SlotPosition);
-            const TotalSavings = currentContext.newTotalSavings !== undefined ? currentContext.newTotalSavings : latestCalculationContext.totalSavings;
 
             let title = '';
             let steps = [];
@@ -445,21 +441,29 @@
                     break;
 
                 case 'grossFees':
-                     title = CircleType === 'Smart Saving' ? 'Cashback Amount Calculation' : 'Original Gross Fees Calculation';
-                     const currentFeePercent = getFeePercent(CircleType, latestCalculationContext.duration, latestCalculationContext.slot);
+                    title = CircleType === 'Smart Saving' ? 'Cashback Amount Calculation' : 'Original Gross Fees Calculation';
                     if (CircleType === 'Smart Saving') {
                          steps = [
                             `**Requested Payout:** ${format(latestCalculationContext.payout)}`,
-                            `**Cashback Percentage:** ${formatPercent(currentFeePercent)} (Based on ${latestCalculationContext.duration} months)`,
-                            `**Formula:** Payout Amount \u00D7 Cashback Percentage`,
-                            `**Calculation:** ${format(latestCalculationContext.payout)} \u00D7 ${formatPercent(currentFeePercent)} = **${format(Math.abs(latestCalculationContext.grossFees))}**`,
+                            `**Cashback Percentage:** ${formatPercent(latestCalculationContext.baseFeePercent)} (Based on ${latestCalculationContext.duration} months)`,
+                            `**Formula:** Payout Amount × Cashback Percentage`,
+                            `**Calculation:** ${format(latestCalculationContext.payout)} × ${formatPercent(latestCalculationContext.baseFeePercent)} = **${format(Math.abs(latestCalculationContext.grossFees))}**`,
                          ];
+                    } else if (latestCalculationContext.baseFeePercent > 0) {
+                        steps = [
+                            `**Requested Payout:** ${format(latestCalculationContext.payout)}`,
+                            `**Base Admin Fee Percentage:** ${formatPercent(latestCalculationContext.baseFeePercent)}`,
+                            `**Base Fee Calculation:** ${format(latestCalculationContext.payout)} × ${formatPercent(latestCalculationContext.baseFeePercent)} = ${format(latestCalculationContext.baseGrossFees)}`,
+                            `**VAT Calculation (${VAT_RATE * 100}%):** ${format(latestCalculationContext.baseGrossFees)} × ${VAT_RATE * 100}% = ${format(latestCalculationContext.vatAmount)}`,
+                            `**Total Gross Fees (Base + VAT):** ${format(latestCalculationContext.baseGrossFees)} + ${format(latestCalculationContext.vatAmount)} = **${format(Math.abs(latestCalculationContext.grossFees))}**`
+                        ];
                     } else {
                         steps = [
                             `**Requested Payout:** ${format(latestCalculationContext.payout)}`,
-                            `**Original Fee Percentage:** ${formatPercent(currentFeePercent)}`,
-                            `**Formula:** Payout Amount \u00D7 Original Fee Percentage`,
-                            `**Calculation:** ${format(latestCalculationContext.payout)} \u00D7 ${formatPercent(currentFeePercent)} = **${format(Math.abs(latestCalculationContext.grossFees))}** (Fees are positive/negative based on slot)`,
+                            `**Original Fee Percentage:** ${formatPercent(latestCalculationContext.baseFeePercent)}`,
+                            `**Formula:** Payout Amount × Original Fee Percentage`,
+                            `**Calculation:** ${format(latestCalculationContext.payout)} × ${formatPercent(latestCalculationContext.baseFeePercent)} = **${format(Math.abs(latestCalculationContext.grossFees))}** (Fees are negative based on slot)`,
+                            `*(Note: VAT is not applied to zero-fee or discount slots.)*`
                         ];
                     }
                     break;
@@ -488,7 +492,7 @@
                                 `**Promo:** ${promo.code}`,
                                 `**Discount Type:** Installment Discount (One-Time Upfront)`,
                                 `**Base Installment:** ${format(latestCalculationContext.baseInstallment)}`,
-                                `**Discount Calculation:** ${format(latestCalculationContext.baseInstallment)} \u00D7 ${formatPercent(percentToUse)} = ${format(calculatedInstallmentDiscount)}`,
+                                `**Discount Calculation:** ${format(latestCalculationContext.baseInstallment)} × ${formatPercent(percentToUse)} = ${format(calculatedInstallmentDiscount)}`,
                                 `**Cap Applied:** ${format(actualInstallmentDiscount)} (Capped at ${format(promo.discount_cap)})`,
                                 `**Total Savings:** **${format(actualInstallmentDiscount)}**`
                             ];
@@ -500,8 +504,8 @@
                          steps = [
                             `**Promo:** ${promo.code}`,
                             `**Discount Type:** Fee Discount`,
-                             `**Original Gross Fees:** ${format(latestCalculationContext.grossFees)}`,
-                            `**Discount Calculation:** ${format(latestCalculationContext.grossFees)} \u00D7 ${formatPercent(promo.discount_percent)} = ${format(calculatedDiscount)}`,
+                             `**Original Gross Fees (Including VAT):** ${format(latestCalculationContext.grossFees)}`,
+                            `**Discount Calculation:** ${format(latestCalculationContext.grossFees)} × ${formatPercent(promo.discount_percent)} = ${format(calculatedDiscount)}`,
                             `**Total Savings (Cap Applied):** **${format(actualDiscount)}** (Capped at ${format(promo.discount_cap)})`,
                          ];
                     } else {
@@ -525,22 +529,21 @@
                         `**Payout Factor:** ${latestCalculationContext.payoutFactor.toFixed(2)}`,
                         `**Position Factor:** ${latestCalculationContext.slotFactor}`,
                         `**Base Value:** 50 EGP (Constant)`,
-                        `**Formula:** Payout Factor \u00D7 Position Factor \u00D7 Base Value`,
-                        `**Calculation:** ${latestCalculationContext.payoutFactor.toFixed(2)} \u00D7 ${latestCalculationContext.slotFactor} \u00D7 50 = **${format(latestCalculationContext.rpsTotal)}**`
+                        `**Formula:** Payout Factor × Position Factor × Base Value`,
+                        `**Calculation:** ${latestCalculationContext.payoutFactor.toFixed(2)} × ${latestCalculationContext.slotFactor} × 50 = **${format(latestCalculationContext.rpsTotal)}**`
                     ];
                     break;
 
                 case 'rpsPromoTotal': 
                     title = 'Final RPS Score with Promo Discount (90%) Calculation (For Normal Circles Only)';
                     steps = [
-                         `**Original RPS Score:** ${format(latestCalculationContext.rpsTotal)}`,
-                         `**Promo Discount Applied:** 10%`,
-                         `**Formula:** Original RPS \u00D7 0.90`,
-                         `**Calculation:** ${format(latestCalculationContext.rpsTotal)} \u00D7 0.90 = **${format(latestCalculationContext.rpsPromoTotal)}**`
+                        `**Original RPS Score:** ${format(latestCalculationContext.rpsTotal)}`,
+                        `**Promo Discount Applied:** 10%`,
+                        `**Formula:** Original RPS × 0.90`,
+                        `**Calculation:** ${format(latestCalculationContext.rpsTotal)} × 0.90 = **${format(latestCalculationContext.rpsPromoTotal)}**`
                     ];
                     break;
 
-                
                 case 'netInstallment':
                     if (!scheduleData || scheduleData.length === 0) {
                         steps = ['Schedule data not available.']; break;
@@ -551,8 +554,8 @@
                     }
                     
                     let feesForInstallmentCalc = GrossFees; 
-                    const isPositiveFeeContext = BaseFeePercent > 0; 
-                    const isZeroFeeContext = BaseFeePercent === 0;
+                    const isPositiveFeeContext = currentContext.grossFees > 0; 
+                    const isZeroFeeContext = currentContext.grossFees === 0;
 
                      if (isPromoTable && SlotPromo && isPositiveFeeContext) { 
                         const calculatedDiscount = GrossFees * SlotPromo.discount_percent;
@@ -573,7 +576,7 @@
                              const feePerMonthInstall = feesForInstallmentCalc / SlotPosition;
                             steps = [
                                 `**Base Installment:** ${format(BaseInstallment)}`,
-                                `**Distributed Fee:** + ${format(feePerMonthInstall)} (${(isPromoTable ? 'Net Fees' : 'Gross Fees')} / Slot Position)`,
+                                `**Distributed Fee (Includes VAT):** + ${format(feePerMonthInstall)} (${(isPromoTable ? 'Net Fees' : 'Gross Fees')} / Slot Position)`,
                                 `**Final Installment:** **${format(monthDataInstall.installment)}**`
                             ];
                         } else if (feesForInstallmentCalc < 0) { 
@@ -633,7 +636,7 @@
                     break;
 
                 case 'netPayoutAmount':
-                     if (!scheduleData || scheduleData.length === 0) {
+                    if (!scheduleData || scheduleData.length === 0) {
                         steps = ['Schedule data not available.']; break;
                     }
                     const monthDataPayout = scheduleData.find(m => m.month === monthOrValue);
@@ -642,11 +645,11 @@
                     }
                     
                     let feesForPayoutCalc = GrossFees;
-                     if (isPromoTable && SlotPromo && BaseFeePercent > 0) { 
+                     if (isPromoTable && SlotPromo && currentContext.grossFees > 0) { 
                         const calculatedDiscount = GrossFees * SlotPromo.discount_percent;
                         const actualDiscount = Math.min(calculatedDiscount, SlotPromo.discount_cap);
                         feesForPayoutCalc = GrossFees - actualDiscount; 
-                    } else if (isPromoTable && BaseFeePercent === 0) { 
+                    } else if (isPromoTable && currentContext.grossFees === 0) { 
                         feesForPayoutCalc = 0; 
                     }
 
@@ -666,7 +669,7 @@
                         steps = [
                             `**Requested Payout:** ${format(PayoutAmount)}`,
                             `**Less Base Installment:** - ${format(BaseInstallment)}`,
-                            `**Less Remaining Fees:** - ${format(feesRemainingPayout)} (1 installment portion of distributed ${isPromoTable ? 'net' : 'gross'} fees)`,
+                            `**Less Remaining Fees (Includes VAT):** - ${format(feesRemainingPayout)} (1 installment portion of distributed ${isPromoTable ? 'net' : 'gross'} fees)`,
                             `**Final Net Payout:** **${format(monthDataPayout.netPayout)}**`
                         ];
                     } else { 
@@ -689,43 +692,55 @@
                     ];
                     break;
                 case 'recGrossFees':
-                     if (!latestCalculationContext.rec) break;
-                     const recFeePercent = getFeePercent(CircleType, Duration, latestCalculationContext.rec.newSlot);
+                    if (!latestCalculationContext.rec) break;
                     title = 'Recommended Original Gross Fees';
-                    steps = [
-                        `**Recommended Payout:** ${format(latestCalculationContext.rec.newPayout)}`,
-                        `**Original Fee Percentage (at New Slot ${latestCalculationContext.rec.newSlot}):** ${formatPercent(recFeePercent)}`,
-                        `**Calculation:** ${format(latestCalculationContext.rec.newPayout)} \u00D7 ${formatPercent(recFeePercent)} = **${format(Math.abs(latestCalculationContext.rec.newGrossFees))}**`,
-                    ];
+                    if (latestCalculationContext.rec.newBaseFeePercent > 0) {
+                        steps = [
+                            `**Recommended Payout:** ${format(latestCalculationContext.rec.newPayout)}`,
+                            `**Base Admin Fee Percentage:** ${formatPercent(latestCalculationContext.rec.newBaseFeePercent)}`,
+                            `**Base Fee Calculation:** ${format(latestCalculationContext.rec.newPayout)} × ${formatPercent(latestCalculationContext.rec.newBaseFeePercent)} = ${format(latestCalculationContext.rec.newBaseGrossFees)}`,
+                            `**VAT Calculation (${VAT_RATE * 100}%):** ${format(latestCalculationContext.rec.newBaseGrossFees)} × ${VAT_RATE * 100}% = ${format(latestCalculationContext.rec.newVatAmount)}`,
+                            `**Total Gross Fees (Base + VAT):** ${format(latestCalculationContext.rec.newBaseGrossFees)} + ${format(latestCalculationContext.rec.newVatAmount)} = **${format(Math.abs(latestCalculationContext.rec.newGrossFees))}**`
+                        ];
+                    } else {
+                        steps = [
+                            `**Recommended Payout:** ${format(latestCalculationContext.rec.newPayout)}`,
+                            `**Original Fee Percentage (at New Slot ${latestCalculationContext.rec.newSlot}):** ${formatPercent(latestCalculationContext.rec.newBaseFeePercent)}`,
+                            `**Calculation:** ${format(latestCalculationContext.rec.newPayout)} × ${formatPercent(latestCalculationContext.rec.newBaseFeePercent)} = **${format(Math.abs(latestCalculationContext.rec.newGrossFees))}**`,
+                        ];
+                    }
                     break;
                 case 'recRpsTotal':
-                     if (!latestCalculationContext.rec) break;
-                     const newPayoutFactor = getPayoutFactor(latestCalculationContext.rec.newPayout);
-                     const newSlotFactor = getSlotFactor(latestCalculationContext.rec.newSlot);
+                    if (!latestCalculationContext.rec) break;
+                    const newPayoutFactor = getPayoutFactor(latestCalculationContext.rec.newPayout);
+                    const newSlotFactor = getSlotFactor(latestCalculationContext.rec.newSlot);
                     title = 'Potential New RPS Score Calculation (100% Original)';
                     const recRpsOriginal = latestCalculationContext.rec.newRps / 0.90;
                     steps = [
                         `**New Payout Factor (GMV):** ${newPayoutFactor.toFixed(2)}`,
                         `**New Position Factor (Slot):** ${newSlotFactor}`,
                         `**Base Value:** 50 EGP (Constant)`,
-                        `**Formula:** Payout Factor \u00D7 Position Factor \u00D7 Base Value`,
-                        `**Calculation:** ${newPayoutFactor.toFixed(2)} \u00D7 ${newSlotFactor} \u00D7 50 = **${format(recRpsOriginal)}**`
+                        `**Formula:** Payout Factor × Position Factor × Base Value`,
+                        `**Calculation:** ${newPayoutFactor.toFixed(2)} × ${newSlotFactor} × 50 = **${format(recRpsOriginal)}**`
                     ];
                     break;
                 case 'recTotalSavings':
                     if (!latestCalculationContext.rec) break;
                     title = 'Potential Total Savings Calculation';
-                    steps = [`Savings calculation is based on the recommended promo code and the new Gross Fees. **Total Savings:** ${format(latestCalculationContext.rec.newTotalSavings)}`];
+                    steps = [
+                        `Savings calculation is based on the recommended promo code and the new Gross Fees.`,
+                        `**Total Savings:** ${format(latestCalculationContext.rec.newTotalSavings)}`
+                    ];
                     break;
                 case 'recRpsTotalPromo':
-                     if (!latestCalculationContext.rec) break;
-                     const originalRecRpsPromo = latestCalculationContext.rec.newRps / 0.90;
+                    if (!latestCalculationContext.rec) break;
+                    const originalRecRpsPromo = latestCalculationContext.rec.newRps / 0.90;
                     title = 'Potential New RPS Score with Promo Discount (90%) Calculation';
                     steps = [
-                         `**Original Recommended RPS:** ${format(originalRecRpsPromo)}`,
-                         `**Promo Discount Applied:** 10%`,
-                         `**Formula:** Original RPS \u00D7 0.90`,
-                         `**Calculation:** ${format(originalRecRpsPromo)} \u00D7 0.90 = **${format(latestCalculationContext.rec.newRps)}**`
+                        `**Original Recommended RPS:** ${format(originalRecRpsPromo)}`,
+                        `**Promo Discount Applied:** 10%`,
+                        `**Formula:** Original RPS × 0.90`,
+                        `**Calculation:** ${format(originalRecRpsPromo)} × 0.90 = **${format(latestCalculationContext.rec.newRps)}**`
                     ];
                     break;
 
@@ -938,20 +953,20 @@
             }
             
              if (recommendedSlotIsNegativeFee || newMetrics.newPromoCode === 'N/A') {
-                 recPromoComparisonWrapper.classList.add('hidden');
-                 if (recommendedSlotIsNegativeFee) {
-                     document.getElementById('rec-promo-code').textContent = 'N/A (Discount Slot)'; 
-                     document.getElementById('rec-total-savings').textContent = formatter.format(newMetrics.newTotalSavings);
-                 }
+                  recPromoComparisonWrapper.classList.add('hidden');
+                  if (recommendedSlotIsNegativeFee) {
+                      document.getElementById('rec-promo-code').textContent = 'N/A (Discount Slot)'; 
+                      document.getElementById('rec-total-savings').textContent = formatter.format(newMetrics.newTotalSavings);
+                  }
              } else {
-                 recPromoComparisonWrapper.classList.remove('hidden');
+                  recPromoComparisonWrapper.classList.remove('hidden');
              }
 
             const summaryTextEl = document.getElementById('rec-summary-text');
             if (newMetrics.type === 'payout') {
-                summaryTextEl.textContent = `Increase Payout: ${formatter.format(newMetrics.originalPayout)} \u2192 ${formatter.format(newMetrics.newPayout)}`;
+                summaryTextEl.textContent = `Increase Payout: ${formatter.format(newMetrics.originalPayout)} → ${formatter.format(newMetrics.newPayout)}`;
             } else {
-                summaryTextEl.textContent = `Change Slot: Slot ${newMetrics.originalSlot} \u2192 Slot ${newMetrics.newSlot}`;
+                summaryTextEl.textContent = `Change Slot: Slot ${newMetrics.originalSlot} → Slot ${newMetrics.newSlot}`;
             }
 
             recommendedRpsWrapper.classList.remove('hidden');
@@ -989,7 +1004,7 @@
             } else {
                 const strategicRec = calculatorData.recommendation_list.find(r => r.trigger_type === feeType);
                 recText = strategicRec ? `${strategicRec.text} \n\n(Note: No immediate RPS score upgrade was found for this combination.)` : 'No recommendation available.';
-                recommendedRpsWrapper.classList.add('hidden');
+                recommendedRpsWrapper.add('hidden');
             }
             
             document.getElementById('recommendation-text').textContent = recText;
@@ -1077,7 +1092,11 @@
                     const newRpsTotal = circleTypeSelect.value === 'Normal' ? newRpsOriginal * RPS_PROMO_MULTIPLIER : newRpsOriginal; 
                     
                     const newBaseInstallment = targetPayout / duration;
-                    const newGrossFees = targetPayout * baseFeePercent; 
+                    const recFeePercent = getFeePercent(circleTypeSelect.value, duration, currentSlot);
+                    const newBaseGrossFees = targetPayout * recFeePercent; 
+                    const newVatPercent = (recFeePercent > 0 && circleTypeSelect.value === 'Normal') ? recFeePercent * VAT_RATE : 0;
+                    const newVatEGP = (recFeePercent > 0 && circleTypeSelect.value === 'Normal') ? newBaseGrossFees * VAT_RATE : 0;
+                    const newGrossFees = newBaseGrossFees + newVatEGP;
 
                     const newPromo = circleTypeSelect.value === 'Normal' ? getSlotPromocode(duration, currentSlot) : null; 
                     let newNetFees = newGrossFees;
@@ -1085,12 +1104,12 @@
                     let newTotalSavings = 0;
 
                     if (newPromo && circleTypeSelect.value === 'Normal') {
-                        if (isPositiveFee) {
+                        if (recFeePercent > 0) {
                             const calculatedDiscount = newGrossFees * newPromo.discount_percent;
                             const actualDiscount = Math.min(calculatedDiscount, newPromo.discount_cap);
                             newNetFees = newGrossFees - actualDiscount;
                             newTotalSavings = actualDiscount;
-                        } else if (baseFeePercent === 0) {
+                        } else if (recFeePercent === 0) {
                                 newNetFees = 0;
                                 newIsZeroPromo = true;
                                 if (ZERO_FEE_PROMO_MODE === 'distributed' && newPromo.discount_schedule) {
@@ -1107,7 +1126,7 @@
                         }
                     } else if (circleTypeSelect.value === 'Smart Saving') {
                         newTotalSavings = Math.abs(newGrossFees);
-                    } else if (baseFeePercent < 0) { 
+                    } else if (recFeePercent < 0) { 
                         newTotalSavings = Math.abs(newGrossFees);
                     }
                     
@@ -1124,6 +1143,10 @@
                         newPayout: targetPayout,
                         newBaseInstallment: newBaseInstallment,
                         newGrossFees: newGrossFees,
+                        newBaseGrossFees: newBaseGrossFees,
+                        newVatAmount: newVatEGP,
+                        newBaseFeePercent: recFeePercent,
+                        newVatPercent: newVatPercent,
                         newPromoCode: newPromo ? newPromo.code : 'N/A',
                         newTotalSavings: newTotalSavings,
                         originalSlot: currentSlot, 
@@ -1137,7 +1160,7 @@
 
             if (currentSlot === 1) return NO_UPGRADE;
             
-            let checkRange = isPositiveFee ? 1 : 2; 
+            let checkRange = currentContext.baseFeePercent > 0 ? 1 : 2; 
             let bestSlotRecommendation = NO_UPGRADE;
             const RPS_FACTOR_JUMP = 2;
             let maxFactorJump = 0;
@@ -1153,7 +1176,7 @@
                     
                     const targetSlotFactor = getSlotFactor(targetSlot);
 
-                    if (isPositiveFee && targetFeePercent < 0.00001) {
+                    if (currentContext.baseFeePercent > 0 && targetFeePercent < 0.00001) {
                          continue; 
                     }
 
@@ -1163,18 +1186,22 @@
                         
                         const newRpsOriginal = (targetSlotFactor * currentGMVFactor * 50); 
                         const newRpsTotal = newRpsOriginal * RPS_PROMO_MULTIPLIER; 
-                        const newGrossFees = currentPayout * targetFeePercent; 
+                        
+                        const targetBaseGrossFees = currentPayout * targetFeePercent;
+                        const targetVatPercent = (targetFeePercent > 0) ? targetFeePercent * VAT_RATE : 0;
+                        const targetVatEGP = (targetFeePercent > 0) ? targetBaseGrossFees * VAT_RATE : 0;
+                        const targetNewGrossFees = targetBaseGrossFees + targetVatEGP;
 
                         const newPromo = getSlotPromocode(duration, targetSlot);
-                        let newNetFees = newGrossFees;
+                        let newNetFees = targetNewGrossFees;
                         let newIsZeroPromo = false;
                         let newTotalSavings = 0;
                         
                         if (newPromo) {
                             if (targetFeePercent > 0) {
-                                const calculatedDiscount = newGrossFees * newPromo.discount_percent;
+                                const calculatedDiscount = targetNewGrossFees * newPromo.discount_percent;
                                 const actualDiscount = Math.min(calculatedDiscount, newPromo.discount_cap);
-                                newNetFees = newGrossFees - actualDiscount;
+                                newNetFees = targetNewGrossFees - actualDiscount;
                                 newTotalSavings = actualDiscount;
                             } else if (targetFeePercent === 0) {
                                  newNetFees = 0;
@@ -1192,12 +1219,12 @@
                                  }
                             }
                         } else if (targetFeePercent < 0) {
-                             const totalDiscount = Math.abs(newGrossFees);
+                             const totalDiscount = Math.abs(targetNewGrossFees);
                              newTotalSavings = totalDiscount;
                         }
                         
                         const recommendedSchedule = buildSchedule(baseInstallment, newNetFees, duration, targetSlot, currentPayout, newIsZeroPromo, 'Normal');
-                        const originalScheduleForRec = buildSchedule(baseInstallment, newGrossFees, duration, targetSlot, currentPayout, false, 'Normal'); 
+                        const originalScheduleForRec = buildSchedule(baseInstallment, targetNewGrossFees, duration, targetSlot, currentPayout, false, 'Normal'); 
 
                         maxFactorJump = factorJump; 
                         bestSlotRecommendation = {
@@ -1209,7 +1236,11 @@
                             newSlot: targetSlot, 
                             newPayout: currentPayout,
                             newBaseInstallment: baseInstallment,
-                            newGrossFees: newGrossFees,
+                            newGrossFees: targetNewGrossFees,
+                            newBaseGrossFees: targetBaseGrossFees,
+                            newVatAmount: targetVatEGP,
+                            newBaseFeePercent: targetFeePercent,
+                            newVatPercent: targetVatPercent,
                             newPromoCode: newPromo ? newPromo.code : 'N/A',
                             newTotalSavings: newTotalSavings,
                             newDuration: duration,
@@ -1252,14 +1283,25 @@
                 }
 
                 const baseInstallment = PayoutAmount / Duration;
-                const baseFeePercent = getFeePercent(CircleType, Duration, SlotPosition);
+                const rawFeePercent = getFeePercent(CircleType, Duration, SlotPosition);
                 
-                if (baseFeePercent === null) return showError(`Error: Fee data not found for ${CircleType} ${Duration}M Slot ${SlotPosition}.`);
+                if (rawFeePercent === null) return showError(`Error: Fee data not found for ${CircleType} ${Duration}M Slot ${SlotPosition}.`);
 
-                const grossFeesEGP = PayoutAmount * baseFeePercent; 
-                const isPositiveFee = baseFeePercent > 0;
-                const isZeroFee = baseFeePercent === 0;
-                const isNegativeFee = baseFeePercent < 0;
+                let baseFeePercent = rawFeePercent;
+                let vatPercent = 0;
+                let baseGrossFeesEGP = PayoutAmount * baseFeePercent;
+                let vatEGP = 0;
+                let grossFeesEGP = baseGrossFeesEGP;
+
+                if (baseFeePercent > 0 && CircleType === 'Normal') {
+                    vatPercent = baseFeePercent * VAT_RATE;
+                    vatEGP = baseGrossFeesEGP * VAT_RATE;
+                    grossFeesEGP = baseGrossFeesEGP + vatEGP;
+                }
+
+                const isPositiveFee = grossFeesEGP > 0;
+                const isZeroFee = grossFeesEGP === 0;
+                const isNegativeFee = grossFeesEGP < 0;
 
                 const originalSchedule = buildSchedule(baseInstallment, grossFeesEGP, Duration, SlotPosition, PayoutAmount, false, CircleType); 
                 
@@ -1271,17 +1313,16 @@
                 
                 const slotPromo = getSlotPromocode(Duration, SlotPosition);
 
-if (slotPromo && CircleType === 'Normal') { 
-    promoCode = slotPromo.code;
-    
-    // Dynamically adjust the text based on the active mode
-    if (ZERO_FEE_PROMO_MODE === 'distributed' && slotPromo.discount_schedule) {
-        promoDetails = `Discount: ${formatPercent(slotPromo.total_discount_percent)} / Cap: ${formatter.format(2000)}/mth`;
-    } else {
-        promoDetails = `Discount: ${formatPercent(slotPromo.total_discount_percent || slotPromo.discount_percent)} / Cap: ${formatter.format(slotPromo.discount_cap)}`;
-    }
+                if (slotPromo && CircleType === 'Normal') { 
+                    promoCode = slotPromo.code;
                     
-                    if (isPositiveFee) {
+                    if (ZERO_FEE_PROMO_MODE === 'distributed' && slotPromo.discount_schedule) {
+                        promoDetails = `Discount: ${formatPercent(slotPromo.total_discount_percent)} / Cap: ${formatter.format(2000)}/mth`;
+                    } else {
+                        promoDetails = `Discount: ${formatPercent(slotPromo.total_discount_percent || slotPromo.discount_percent)} / Cap: ${formatter.format(slotPromo.discount_cap)}`;
+                    }
+                                        
+                    if (baseFeePercent > 0) {
                         const calculatedDiscount = grossFeesEGP * slotPromo.discount_percent;
                         const actualDiscount = Math.min(calculatedDiscount, slotPromo.discount_cap);
                         netFeesEGP = grossFeesEGP - actualDiscount;
@@ -1317,14 +1358,16 @@ if (slotPromo && CircleType === 'Normal') {
                 const rpsPromoMultiplier = CircleType === 'Normal' ? 0.90 : 1.0;
                 const rpsPromoTotal = rpsTotal * rpsPromoMultiplier;
 
-                const rpsRecommendation = getRpsRecommendation(PayoutAmount, Duration, SlotPosition, isPositiveFee, baseFeePercent, baseInstallment, grossFeesEGP, rpsTotal); 
-
                 latestCalculationContext = {
                     payout: PayoutAmount,
                     duration: Duration,
                     slot: SlotPosition,
                     baseInstallment: baseInstallment,
                     grossFees: grossFeesEGP,
+                    baseGrossFees: baseGrossFeesEGP,
+                    vatAmount: vatEGP,
+                    baseFeePercent: baseFeePercent,
+                    vatPercent: vatPercent,
                     netFees: netFeesEGP, 
                     totalSavings: totalSavings,
                     originalSchedule: originalSchedule,
@@ -1336,10 +1379,12 @@ if (slotPromo && CircleType === 'Normal') {
                     slotFactor: slotFactor,
                     rpsTotal: rpsTotal,
                     rpsPromoTotal: rpsPromoTotal, 
-                    rec: rpsRecommendation.upgradeFound ? rpsRecommendation : null,
                     circleType: CircleType, 
                     promoCode: promoCode 
                 };
+
+                const rpsRecommendation = getRpsRecommendation(PayoutAmount, Duration, SlotPosition, isPositiveFee, baseFeePercent, baseInstallment, grossFeesEGP, rpsTotal); 
+                latestCalculationContext.rec = rpsRecommendation.upgradeFound ? rpsRecommendation : null;
 
                 let feeType;
                 if (CircleType === 'Smart Saving') {
@@ -1348,7 +1393,7 @@ if (slotPromo && CircleType === 'Normal') {
                     originalScheduleWrapper.classList.remove('lg:w-1/2'); 
                 } else {
                     originalScheduleWrapper.classList.add('lg:w-1/2'); 
-                    if (isPositiveFee) {
+                    if (baseFeePercent > 0) {
                         feeType = 'Positive Fee';
                         promoScheduleWrapper.classList.toggle('hidden', !promoSchedule);
                     } else if (isZeroFee) {
