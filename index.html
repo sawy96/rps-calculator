@@ -288,7 +288,7 @@
                                 </p>
                                 <p id="recommended-rps-total" class="font-bold text-green-900 mt-1">0.00</p>
                             </div>
-                                                                                                                <div class="p-2 bg-red-200 rounded-lg">
+                                                                                                                                                            <div class="p-2 bg-red-200 rounded-lg">
                                 <p class="text-xs font-medium text-red-900 flex items-center">
                                     Potential New RPS (90%)
                                     <span class="calc-button" onclick="showCalculationSteps('recRpsTotalPromo', document.getElementById('rec-rps-promo-total').textContent)">?</span>
@@ -557,7 +557,7 @@
                     const isPositiveFeeContext = currentContext.grossFees > 0; 
                     const isZeroFeeContext = currentContext.grossFees === 0;
 
-                     if (isPromoTable && SlotPromo && isPositiveFeeContext) { 
+                    if (isPromoTable && SlotPromo && isPositiveFeeContext) { 
                         const calculatedDiscount = GrossFees * SlotPromo.discount_percent;
                         const actualDiscount = Math.min(calculatedDiscount, SlotPromo.discount_cap);
                         feesForInstallmentCalc = GrossFees - actualDiscount; 
@@ -570,13 +570,13 @@
                     title = `Installment Breakdown (Month ${monthOrValue})`;
                     
                     if (monthOrValue < SlotPosition) {
-                         if (CircleType === 'Smart Saving') {
+                        if (CircleType === 'Smart Saving') {
                              steps = [`**Base Installment:** ${format(BaseInstallment)} (Payout / Duration)`];
                         } else if (feesForInstallmentCalc > 0) { 
-                             const feePerMonthInstall = feesForInstallmentCalc / SlotPosition;
+                             const feePerMonthInstall = feesForInstallmentCalc / Duration;
                             steps = [
                                 `**Base Installment:** ${format(BaseInstallment)}`,
-                                `**Distributed Fee (Includes VAT):** + ${format(feePerMonthInstall)} (${(isPromoTable ? 'Net Fees' : 'Gross Fees')} / Slot Position)`,
+                                `**Distributed Fee (Includes VAT):** + ${format(feePerMonthInstall)} (${(isPromoTable ? 'Net Fees' : 'Gross Fees')} / Duration)`,
                                 `**Final Installment:** **${format(monthDataInstall.installment)}**`
                             ];
                         } else if (feesForInstallmentCalc < 0) { 
@@ -613,11 +613,11 @@
                                      const actualInstallmentDiscount = Math.min(calculatedInstallmentDiscount, SlotPromo.discount_cap);
                                      if (monthOrValue === 1) {
                                          steps = [`**Base Installment:** ${format(BaseInstallment)}`, 
-                                                  `**Promo Discount (Month 1 Only):** - ${format(actualInstallmentDiscount)}`,
-                                                  `**Final Installment:** **${format(monthDataInstall.installment)}**`];
+                                                 `**Promo Discount (Month 1 Only):** - ${format(actualInstallmentDiscount)}`,
+                                                 `**Final Installment:** **${format(monthDataInstall.installment)}**`];
                                      } else {
                                          steps = [`**Base Installment:** ${format(BaseInstallment)} (Full amount applied after Month 1)`,
-                                                  `**Final Installment:** **${format(monthDataInstall.installment)}**`];
+                                                 `**Final Installment:** **${format(monthDataInstall.installment)}**`];
                                      }
                                  }
                              } else {
@@ -665,11 +665,13 @@
                             `**Final Net Payout:** **${format(monthDataPayout.netPayout)}**`
                         ];
                     } else if (feesForPayoutCalc > 0) { 
-                        const feesRemainingPayout = feesForPayoutCalc / SlotPosition;
+                        const feesAlreadyPaidSteps = (feesForPayoutCalc / Duration) * (SlotPosition - 1);
+                        const feesRemainingPayout = feesForPayoutCalc - feesAlreadyPaidSteps;
+                        
                         steps = [
                             `**Requested Payout:** ${format(PayoutAmount)}`,
                             `**Less Base Installment:** - ${format(BaseInstallment)}`,
-                            `**Less Remaining Fees (Includes VAT):** - ${format(feesRemainingPayout)} (1 installment portion of distributed ${isPromoTable ? 'net' : 'gross'} fees)`,
+                            `**Less Remaining Fees (Includes VAT):** - ${format(feesRemainingPayout)} (Total ${isPromoTable ? 'net' : 'gross'} fees minus paid portions)`,
                             `**Final Net Payout:** **${format(monthDataPayout.netPayout)}**`
                         ];
                     } else { 
@@ -1460,7 +1462,7 @@
                 const cashbackAmount = PayoutAmount * cashbackPercent;
                 const baseInstallment = PayoutAmount / duration;
 
-                 for (let i = 1; i <= duration; i++) {
+                for (let i = 1; i <= duration; i++) {
                     let installment = baseInstallment;
                     let netPayout = 0;
 
@@ -1468,21 +1470,20 @@
                         installment = 0;
                         netPayout = PayoutAmount - baseInstallment + cashbackAmount; 
                     } else if (i > slotPosition) {
-                         installment = 0; 
+                        installment = 0; 
                     }
-                     schedule.push({
+                    schedule.push({
                         month: i,
                         installment: installment,
                         netPayout: netPayout,
                     });
-                 }
-                 return schedule; 
+                }
+                return schedule; 
             }
 
             if (isPositiveOrZeroFee) {
-                
                 const feesToDistribute = Math.max(0, totalFees); 
-                const distributedFeePerMonth = slotPosition > 0 ? feesToDistribute / slotPosition : 0; 
+                const distributedFeePerMonth = duration > 0 ? feesToDistribute / duration : 0; 
                 
                 for (let i = 1; i <= duration; i++) {
                     let installment = monthlyInstallment;
@@ -1490,7 +1491,7 @@
                     
                     if (i < slotPosition) {
                         if (feesToDistribute > 0 && !isZeroFeePromo) {
-                           installment = monthlyInstallment + distributedFeePerMonth;
+                            installment = monthlyInstallment + distributedFeePerMonth;
                         } else if (isZeroFeePromo) {
                             let currentInstallmentDiscount = 0;
                             const promo = getSlotPromocode(duration, slotPosition);
@@ -1514,12 +1515,12 @@
                         installment = 0;
                         
                         if (feesToDistribute > 0) {
-                            const feesRemainingToBeCollected = distributedFeePerMonth;
+                            const feesAlreadyPaid = distributedFeePerMonth * (slotPosition - 1);
+                            const feesRemainingToBeCollected = feesToDistribute - feesAlreadyPaid;
                             netPayout = PayoutAmount - monthlyInstallment - feesRemainingToBeCollected; 
                         } else {
                             netPayout = PayoutAmount - monthlyInstallment;
                         }
-
                     }
                     
                     schedule.push({
@@ -1531,7 +1532,6 @@
             } else {
                 const totalDiscount = Math.abs(totalFees);
                 const discountedInstallmentMonths = 4; 
-
                 const DDA = totalDiscount / discountedInstallmentMonths;
 
                 for (let i = 1; i <= duration; i++) {
