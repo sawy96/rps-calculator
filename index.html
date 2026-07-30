@@ -358,6 +358,12 @@
         // ==========================================
         const ZERO_FEE_PROMO_MODE = 'distributed'; 
         const VAT_RATE = 0.14; // 14% VAT Rate
+
+        // Set to false to hide "2. RPS Calculation" (Payout Factor, Slot Factor, RPS Score, RPS w/ Promo)
+        const SHOW_RPS = true;
+
+        // Set to false to hide "3. Strategic Recommendation" (upsell text + recommended upgrade metrics)
+        const SHOW_UPSELLING = true;
         // ==========================================
 
         let calculatorData;
@@ -804,6 +810,15 @@
             return entry ? entry.factor : 1;
         }
 
+        function applyModuleVisibility() {
+            // Single control point for RPS + Upselling visibility.
+            // SHOW_RPS = false        -> hides Section 2 "RPS Calculation" entirely.
+            // SHOW_UPSELLING = false  -> hides Section 3 "Strategic Recommendation" (upsell) entirely.
+            // Both false = plain payout calculator only. Both true = calculator + RPS + upsell.
+            rpsSection.classList.toggle('hidden', !SHOW_RPS);
+            recommendationCard.classList.toggle('hidden', !SHOW_UPSELLING);
+        }
+
         function handleCircleTypeChange() {
              const circleType = circleTypeSelect.value;
              const isSmartSaving = circleType === 'Smart Saving';
@@ -827,8 +842,7 @@
                  payoutAmountInput.value = 51000; 
              }
 
-             rpsSection.classList.remove('hidden'); 
-             recommendationCard.classList.remove('hidden'); 
+             applyModuleVisibility();
              
              updateDurationOptions(); 
         }
@@ -1261,6 +1275,7 @@
             try {
                 if (event && event.preventDefault) event.preventDefault();
                 hideError();
+                applyModuleVisibility();
                 recommendedRpsWrapper.classList.add('hidden'); 
 
                 const CircleType = circleTypeSelect.value;
